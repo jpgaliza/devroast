@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NavbarRoot, NavbarBrand, NavbarLinks } from "@/components/ui";
 import { Logo } from "@/components/ui/Logo";
 import { NavLink } from "@/components/ui/NavLink";
+import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,17 +25,19 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <NavbarRoot>
-          <NavbarBrand>
-            <a href="/" className="flex items-center gap-2 cursor-pointer">
-              <Logo />
-            </a>
-          </NavbarBrand>
-          <NavbarLinks>
-            <NavLink href="/leaderboard">leaderboard</NavLink>
-          </NavbarLinks>
-        </NavbarRoot>
-        {children}
+        <TRPCReactProvider>
+          <NavbarRoot>
+            <NavbarBrand>
+              <a href="/" className="flex items-center gap-2 cursor-pointer">
+                <Logo />
+              </a>
+            </NavbarBrand>
+            <NavbarLinks>
+              <NavLink href="/leaderboard">leaderboard</NavLink>
+            </NavbarLinks>
+          </NavbarRoot>
+          {children}
+        </TRPCReactProvider>
       </body>
     </html>
   );

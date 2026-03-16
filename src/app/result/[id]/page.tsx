@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/Card";
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
 import { DiffLine, type DiffLineType } from "@/components/ui/DiffLine";
+import { ResultCodePanel } from "@/components/ui/ResultCodePanel";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 
 const MOCK_ROAST_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -21,7 +22,6 @@ const RESULT_DATA = {
   headline:
     '"this code looks like it was written during a power outage... in 2005."',
   language: "javascript",
-  lineSummary: "7 lines",
   code: `function calculateTotal(items) {
   var total = 0;
   for (var i = 0; i < items.length; i++) {
@@ -89,55 +89,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
       <span className="font-jb text-sm font-bold text-accent-green">//</span>
-      <h2 className="font-jb text-sm font-bold text-text-primary">{children}</h2>
-    </div>
-  );
-}
-
-function CodePanel({
-  highlightedHtml,
-  code,
-  className,
-}: {
-  highlightedHtml?: string | null;
-  code: string;
-  className?: string;
-}) {
-  const lines = code.split("\n");
-
-  return (
-    <div
-      className={[
-        "overflow-hidden border border-border-primary bg-input",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="flex h-full min-h-0">
-        <div className="flex w-10 shrink-0 flex-col items-end overflow-hidden border-r border-border-primary bg-bg-surface px-2.5 py-4">
-          {lines.map((_, index) => (
-            <span
-              key={`${index + 1}`}
-              className="h-5 font-jb text-xs leading-5 text-text-tertiary"
-            >
-              {index + 1}
-            </span>
-          ))}
-        </div>
-        <div className="min-w-0 flex-1 overflow-auto">
-          {highlightedHtml ? (
-            <div
-              className="code-highlighted"
-              dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-            />
-          ) : (
-            <pre className="m-0 whitespace-pre p-4 font-jb text-xs leading-5 text-text-primary">
-              <code>{code}</code>
-            </pre>
-          )}
-        </div>
-      </div>
+      <h2 className="font-jb text-sm font-bold text-text-primary">
+        {children}
+      </h2>
     </div>
   );
 }
@@ -161,6 +115,7 @@ export default async function ResultPage({
     RESULT_DATA.code,
     RESULT_DATA.language,
   );
+  const codeLineCount = RESULT_DATA.code.split(/\r\n|\r|\n/).length;
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -180,7 +135,7 @@ export default async function ResultPage({
             </p>
 
             <p className="font-jb text-xs text-text-tertiary">
-              lang: {RESULT_DATA.language} {" · "} {RESULT_DATA.lineSummary}
+              lang: {RESULT_DATA.language} {" · "} {codeLineCount} lines
             </p>
 
             <div>
@@ -217,7 +172,7 @@ export default async function ResultPage({
 
         <section className="flex flex-col gap-4">
           <SectionLabel>your_submission</SectionLabel>
-          <CodePanel
+          <ResultCodePanel
             className="h-106"
             code={RESULT_DATA.code}
             highlightedHtml={highlightedCode}
@@ -230,7 +185,10 @@ export default async function ResultPage({
           <SectionLabel>detailed_analysis</SectionLabel>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {ANALYSIS_ITEMS.map((item) => (
-              <CardRoot key={item.title} className="gap-3 bg-transparent p-4 md:p-5">
+              <CardRoot
+                key={item.title}
+                className="gap-3 bg-transparent p-4 md:p-5"
+              >
                 <CardHeader>
                   <Badge variant={item.variant}>{item.label}</Badge>
                 </CardHeader>
