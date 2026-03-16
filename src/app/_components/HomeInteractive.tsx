@@ -1,23 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Balancer } from "react-wrap-balancer";
 import { Button } from "@/components/ui";
 import { CodeEditor } from "@/components/ui/CodeEditor";
-import {
-  LeaderboardRoot,
-  LeaderboardHeader,
-  LeaderboardTitle,
-  LeaderboardSubtitle,
-  LeaderboardTable,
-  LeaderboardTableHead,
-  LeaderboardTableRow,
-  LeaderboardTableCell,
-  LeaderboardFooter,
-  LeaderboardScore,
-} from "@/components/ui/LeaderboardPreview";
 import { ToggleLabel, ToggleRoot, ToggleSwitch } from "@/components/ui/Toggle";
 
 const MOCK_ROAST_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -25,9 +12,13 @@ const HOMEPAGE_CODE_MAX_LENGTH = 2000;
 
 interface HomeInteractiveProps {
   children: React.ReactNode;
+  leaderboardSlot?: React.ReactNode;
 }
 
-export function HomeInteractive({ children }: HomeInteractiveProps) {
+export function HomeInteractive({
+  children,
+  leaderboardSlot,
+}: HomeInteractiveProps) {
   const [code, setCode] = React.useState("");
   const [roastMode, setRoastMode] = React.useState(true);
   const router = useRouter();
@@ -119,119 +110,7 @@ export function HomeInteractive({ children }: HomeInteractiveProps) {
       <div className="h-24" />
 
       {/* Leaderboard Preview */}
-      <LeaderboardRoot>
-        <LeaderboardHeader>
-          <div className="flex flex-col gap-8">
-            <LeaderboardTitle>shame_leaderboard</LeaderboardTitle>
-            <LeaderboardSubtitle>
-              // the worst code on the internet, ranked by shame
-            </LeaderboardSubtitle>
-          </div>
-          <Link href="/leaderboard">
-            <Button
-              variant="default"
-              className="cursor-pointer bg-transparent border border-border-primary text-text-tertiary hover:bg-bg-elevated font-jb text-[13px] font-medium px-4 py-2 rounded-none"
-            >
-              $ view_all &gt;&gt;
-            </Button>
-          </Link>
-        </LeaderboardHeader>
-        <LeaderboardTable>
-          <LeaderboardTableHead>
-            <LeaderboardTableCell className="w-10 text-text-tertiary">
-              #
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-15 text-text-tertiary">
-              score
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="flex-1 text-text-tertiary">
-              code
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
-              lang
-            </LeaderboardTableCell>
-          </LeaderboardTableHead>
-          {/* Rows */}
-          <LeaderboardTableRow>
-            <LeaderboardTableCell className="w-10 text-text-tertiary">
-              1
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-15">
-              <LeaderboardScore value={1.2} />
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="flex-1 text-text-secondary">
-              <div className="flex flex-col gap-0.5">
-                <code className="text-text-primary">
-                  eval(prompt("enter code"))
-                </code>
-                <code className="text-text-primary">
-                  document.write(response)
-                </code>
-                <code className="text-text-tertiary">
-                  // trust the user lol
-                </code>
-              </div>
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
-              javascript
-            </LeaderboardTableCell>
-          </LeaderboardTableRow>
-          <LeaderboardTableRow>
-            <LeaderboardTableCell className="w-10 text-text-tertiary">
-              2
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-15">
-              <LeaderboardScore value={1.8} />
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="flex-1 text-text-secondary">
-              <div className="flex flex-col gap-0.5">
-                <code className="text-text-primary">
-                  {`if (x == true) { return true; }`}
-                </code>
-                <code className="text-text-primary">
-                  {`else if (x == false) { return false; }`}
-                </code>
-                <code className="text-text-primary">
-                  {`else { return !false; }`}
-                </code>
-              </div>
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
-              typescript
-            </LeaderboardTableCell>
-          </LeaderboardTableRow>
-          <LeaderboardTableRow>
-            <LeaderboardTableCell className="w-10 text-text-tertiary">
-              3
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-15">
-              <LeaderboardScore value={2.1} />
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="flex-1 text-text-secondary">
-              <div className="flex flex-col gap-0.5">
-                <code className="text-text-primary">
-                  SELECT * FROM users WHERE 1=1
-                </code>
-                <code className="text-text-tertiary">
-                  -- TODO: add authentication
-                </code>
-              </div>
-            </LeaderboardTableCell>
-            <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
-              sql
-            </LeaderboardTableCell>
-          </LeaderboardTableRow>
-        </LeaderboardTable>
-        <LeaderboardFooter>
-          showing top 3 of 2,847 ·{" "}
-          <Link
-            href="/leaderboard"
-            className="text-text-tertiary hover:text-primary transition-colors"
-          >
-            view full leaderboard &gt;&gt;
-          </Link>
-        </LeaderboardFooter>
-      </LeaderboardRoot>
+      {leaderboardSlot}
 
       {/* Bottom Spacer */}
       <div className="h-20" />

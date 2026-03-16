@@ -82,6 +82,12 @@ body {
   display: block;
 }
 
+/* Compact variant for inline previews (e.g. leaderboard rows) */
+.code-highlighted-compact pre.shiki {
+  padding: 0;
+  line-height: 1.4;
+}
+
 /* ─── Custom scrollbar ─── */
 * {
   scrollbar-width: thin;
