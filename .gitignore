@@ -41,4 +41,34 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.pen
+# design files
+*.pen
+
+# logs
+*.log
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/

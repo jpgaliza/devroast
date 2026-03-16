@@ -20,6 +20,7 @@ export const CodeEditor = React.forwardRef<
 >(({ value = "", onChange, placeholder, className }, ref) => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const preRef = React.useRef<HTMLPreElement>(null);
+  const lineNumbersRef = React.useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const { detectedLanguage, setDetectedLanguage } = useLanguageDetection(value);
@@ -38,16 +39,30 @@ export const CodeEditor = React.forwardRef<
     }
   }, [value, detectedLanguage]);
 
-  const lineCount = React.useMemo(
-    () => Math.max((value || "").split("\n").length, 16),
-    [value],
-  );
+  const lineCount = React.useMemo(() => {
+    if (!value) {
+      // Calculate how many lines fit in the editor height
+      // Editor height: 480px - 40px (header) = 440px
+      // Padding: 16px top + 16px bottom = 32px
+      // Available: 440px - 32px = 408px
+      // Line height: 20px
+      // Lines: 408px / 20px = 20.4 ≈ 20 lines
+      return 20;
+    }
+    const lines = value.split("\n");
+    // Don't count empty trailing lines
+    const actualLines = value.endsWith("\n") ? lines.length - 1 : lines.length;
+    return Math.max(actualLines, 20);
+  }, [value]);
 
   // Sync scroll between textarea and pre
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (preRef.current) {
       preRef.current.scrollTop = e.currentTarget.scrollTop;
       preRef.current.scrollLeft = e.currentTarget.scrollLeft;
+    }
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
     }
   };
 
@@ -56,7 +71,7 @@ export const CodeEditor = React.forwardRef<
   return (
     <div
       className={[
-        "w-full max-w-[780px] min-h-[360px] bg-input border border-border-primary rounded-sm overflow-hidden flex flex-col relative",
+        "w-full max-w-[780px] h-[480px] bg-input border border-border-primary rounded-sm overflow-hidden flex flex-col relative",
         className,
       ]
         .filter(Boolean)
@@ -78,14 +93,31 @@ export const CodeEditor = React.forwardRef<
       {/* Code Area */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Line Numbers */}
-        <div className="w-12 bg-bg-surface border-r border-border-primary py-4 px-3 flex flex-col items-end gap-[6px] shrink-0 text-right">
+        <div
+          ref={lineNumbersRef}
+          className="w-12 bg-bg-surface border-r border-border-primary shrink-0 overflow-y-auto overflow-x-hidden hide-scrollbar"
+          style={{
+            paddingTop: "16px",
+            paddingBottom: "16px",
+            paddingLeft: "12px",
+            paddingRight: "12px"
+          }}
+        >
           {Array.from({ length: lineCount }, (_, i) => (
-            <span
+            <div
               key={i}
-              className="text-text-tertiary font-jb text-xs leading-[20px]"
+              className="text-text-tertiary text-right"
+              style={{
+                fontFamily: "var(--font-jb)",
+                fontSize: "12px",
+                lineHeight: "20px",
+                height: "20px",
+                margin: 0,
+                padding: 0
+              }}
             >
               {i + 1}
-            </span>
+            </div>
           ))}
         </div>
 
@@ -100,15 +132,48 @@ export const CodeEditor = React.forwardRef<
             onBlur={() => setIsFocused(false)}
             placeholder={!value ? (placeholder ?? PLACEHOLDER_LINES) : ""}
             spellCheck={false}
-            className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-text-primary font-jb text-xs leading-[20px] p-4 resize-none outline-none placeholder:text-text-tertiary overflow-auto"
+            className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-text-primary resize-none outline-none placeholder:text-text-tertiary overflow-auto"
+            style={{
+              fontFamily: "var(--font-jb)",
+              fontSize: "12px",
+              lineHeight: "20px",
+              padding: "16px",
+              margin: 0,
+              border: "none",
+              whiteSpace: "pre",
+              wordWrap: "normal",
+              overflowWrap: "normal",
+            }}
           />
           <pre
             ref={preRef}
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full bg-transparent text-text-primary font-jb text-xs leading-[20px] p-4 resize-none outline-none overflow-auto pointer-events-none"
+            className="absolute inset-0 w-full h-full bg-transparent text-text-primary resize-none outline-none overflow-auto pointer-events-none"
+            style={{
+              fontFamily: "var(--font-jb)",
+              fontSize: "12px",
+              lineHeight: "20px",
+              padding: "16px",
+              margin: 0,
+              border: "none",
+              whiteSpace: "pre",
+              wordWrap: "normal",
+              overflowWrap: "normal",
+            }}
           >
             <code
               className={`language-${detectedLanguage}`}
+              style={{
+                padding: 0,
+                margin: 0,
+                border: "none",
+                background: "transparent",
+                fontSize: "12px",
+                lineHeight: "20px",
+                fontFamily: "var(--font-jb)",
+                display: "inline",
+                whiteSpace: "pre",
+              }}
               dangerouslySetInnerHTML={{ __html: highlightedHtml }}
             />
             {!value && !isFocused && (

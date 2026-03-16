@@ -105,3 +105,33 @@ body {
 *::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-tertiary);
 }
+
+/* Hide scrollbar for line numbers */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Remove any default styling from code elements in editor */
+pre code {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  font-family: inherit !important;
+  display: inline !important;
+  white-space: inherit !important;
+}
+
+/* Ensure hljs styles don't add extra spacing */
+.hljs {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline !important;
+}
