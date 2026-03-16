@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Balancer } from "react-wrap-balancer";
 import { Button } from "@/components/ui";
 import { CodeEditor } from "@/components/ui/CodeEditor";
@@ -95,12 +96,14 @@ export default function Home() {
                   // the worst code on the internet, ranked by shame
                 </LeaderboardSubtitle>
               </div>
-              <Button
-                variant="default"
-                className="cursor-pointer bg-transparent border border-border-primary text-text-tertiary hover:bg-bg-elevated font-jb text-[13px] font-medium px-4 py-2 rounded-none"
-              >
-                $ view_all &gt;&gt;
-              </Button>
+              <Link href="/leaderboard">
+                <Button
+                  variant="default"
+                  className="cursor-pointer bg-transparent border border-border-primary text-text-tertiary hover:bg-bg-elevated font-jb text-[13px] font-medium px-4 py-2 rounded-none"
+                >
+                  $ view_all &gt;&gt;
+                </Button>
+              </Link>
             </LeaderboardHeader>
             <LeaderboardTable>
               <LeaderboardTableHead>
@@ -190,12 +193,12 @@ export default function Home() {
             </LeaderboardTable>
             <LeaderboardFooter>
               showing top 3 of 2,847 ·{" "}
-              <a
-                href="#"
+              <Link
+                href="/leaderboard"
                 className="text-text-tertiary hover:text-primary transition-colors"
               >
                 view full leaderboard &gt;&gt;
-              </a>
+              </Link>
             </LeaderboardFooter>
           </LeaderboardRoot>
 

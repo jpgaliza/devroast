@@ -85,8 +85,8 @@ export const CodeEditor = React.forwardRef<
           <span className="w-3 h-3 rounded-full bg-accent-green" />
         </div>
         <LanguageSelector
-          language={detectedLanguage}
-          onLanguageChange={setDetectedLanguage}
+          language={detectedLanguage ?? null}
+          onLanguageChange={(lang) => setDetectedLanguage(lang ?? undefined)}
         />
       </div>
 

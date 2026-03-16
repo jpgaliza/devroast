@@ -13,3 +13,4 @@ export * from "./LeaderboardPreview";
 export * from "./Card";
 export * from "./DiffLine";
 export * from "./LanguageSelector";
+export * from "./LeaderboardEntry";

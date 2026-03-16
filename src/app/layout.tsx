@@ -26,10 +26,12 @@ export default function RootLayout({
       <body className="antialiased">
         <NavbarRoot>
           <NavbarBrand>
-            <Logo />
+            <a href="/" className="flex items-center gap-2 cursor-pointer">
+              <Logo />
+            </a>
           </NavbarBrand>
           <NavbarLinks>
-            <NavLink href="#">leaderboard</NavLink>
+            <NavLink href="/leaderboard">leaderboard</NavLink>
           </NavbarLinks>
         </NavbarRoot>
         {children}
