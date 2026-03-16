@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-primary: #ff8400;
+  --color-secondary: #e7e8e5;
+  --color-tertiary: #737373;
+  --color-input: #111111;
+  --color-page: #0c0c0c;
+  --color-accent-green: #10b981;
+  --color-accent-red: #ef4444;
+  --color-accent-amber: #f59e0b;
+  --color-ring: #666666;
+  --color-border-primary: #1f1f1f;
+  --color-bg-surface: #171717;
+  --color-bg-elevated: #1a1a1a;
+  --color-text-primary: #e5e5e5;
+  --color-text-secondary: #a3a3a3;
+  --color-text-tertiary: #737373;
+  --color-syn-keyword: #c678dd;
+  --color-syn-function: #61afef;
+  --color-syn-variable: #e5c07b;
+  --color-syn-operator: #abb2bf;
+  --color-syn-number: #d19a66;
+  --color-syn-string: #98c379;
+  --color-syn-property: #56b6c2;
+  --color-syn-comment: #8b8b8b;
+
+  --font-jb:
+    "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-ibm:
+    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-page);
+  color: var(--color-secondary);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ibm);
+}
+
+/* ─── Shiki CSS Variables Theme → devroast design tokens ─── */
+.code-highlighted {
+  --shiki-foreground: var(--color-text-primary);
+  --shiki-background: transparent;
+  --shiki-token-keyword: var(--color-syn-keyword);
+  --shiki-token-string: var(--color-syn-string);
+  --shiki-token-string-expression: var(--color-syn-string);
+  --shiki-token-comment: var(--color-syn-comment);
+  --shiki-token-constant: var(--color-syn-variable);
+  --shiki-token-parameter: var(--color-syn-variable);
+  --shiki-token-function: var(--color-syn-function);
+  --shiki-token-number: var(--color-syn-number);
+  --shiki-token-link: var(--color-syn-property);
+  --shiki-token-punctuation: var(--color-syn-operator);
+}
+
+/* Reset Shiki-generated <pre> so overlay aligns with the textarea */
+.code-highlighted pre.shiki {
+  margin: 0;
+  padding: 16px;
+  background: transparent !important;
+  font-family: var(--font-jb);
+  font-size: 12px;
+  line-height: 20px;
+  white-space: pre;
+  overflow: visible;
+  tab-size: 2;
+}
+
+.code-highlighted pre.shiki code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  counter-reset: none;
+}
+
+/* Remove line-number spans injected by Shiki transformers if any */
+.code-highlighted .line {
+  display: block;
+}
+
+/* ─── Custom scrollbar ─── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg-elevated) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 0;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
