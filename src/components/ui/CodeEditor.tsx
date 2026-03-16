@@ -9,6 +9,7 @@ export interface CodeEditorProps {
   onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  maxLength?: number;
 }
 
 const PLACEHOLDER_LINES = `// paste your code here...
@@ -17,7 +18,7 @@ const PLACEHOLDER_LINES = `// paste your code here...
 export const CodeEditor = React.forwardRef<
   HTMLTextAreaElement,
   CodeEditorProps
->(({ value = "", onChange, placeholder, className }, ref) => {
+>(({ value = "", onChange, placeholder, className, maxLength }, ref) => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const preRef = React.useRef<HTMLPreElement>(null);
   const lineNumbersRef = React.useRef<HTMLDivElement>(null);
@@ -100,7 +101,7 @@ export const CodeEditor = React.forwardRef<
             paddingTop: "16px",
             paddingBottom: "16px",
             paddingLeft: "12px",
-            paddingRight: "12px"
+            paddingRight: "12px",
           }}
         >
           {Array.from({ length: lineCount }, (_, i) => (
@@ -113,7 +114,7 @@ export const CodeEditor = React.forwardRef<
                 lineHeight: "20px",
                 height: "20px",
                 margin: 0,
-                padding: 0
+                padding: 0,
               }}
             >
               {i + 1}
@@ -126,12 +127,20 @@ export const CodeEditor = React.forwardRef<
           <textarea
             ref={textareaRef}
             value={value}
-            onChange={(e) => onChange?.(e.target.value)}
+            onChange={(e) => {
+              const nextValue = e.target.value;
+              onChange?.(
+                typeof maxLength === "number"
+                  ? nextValue.slice(0, maxLength)
+                  : nextValue,
+              );
+            }}
             onScroll={handleScroll}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={!value ? (placeholder ?? PLACEHOLDER_LINES) : ""}
             spellCheck={false}
+            maxLength={maxLength}
             className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-text-primary resize-none outline-none placeholder:text-text-tertiary overflow-auto"
             style={{
               fontFamily: "var(--font-jb)",

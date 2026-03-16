@@ -5,6 +5,8 @@ export interface ScoreRingProps {
   max?: number; // maximum possible score (default 10)
   size?: number; // svg canvas size in px
   stroke?: number; // ring thickness
+  valueColor?: string;
+  denominatorColor?: string;
 }
 
 // Circular score ring with a gradient from green to orange, centered number plus denominator
@@ -13,6 +15,8 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
   max = 10,
   size = 160,
   stroke = 6,
+  valueColor = "#F59E0B",
+  denominatorColor = "#737373",
 }) => {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -64,10 +68,10 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
         dominantBaseline="central"
         fontFamily="JetBrains Mono, ui-monospace, monospace"
       >
-        <tspan fill="#FFFFFF" fontSize={size * 0.28} fontWeight={700}>
+        <tspan fill={valueColor} fontSize={size * 0.28} fontWeight={700}>
           {Number.isInteger(value) ? value : value.toFixed(1)}
         </tspan>
-        <tspan fill="#6B7280" fontSize={size * 0.14} dy={size * 0.075}>
+        <tspan fill={denominatorColor} fontSize={size * 0.14} dy={size * 0.075}>
           /{max}
         </tspan>
       </text>

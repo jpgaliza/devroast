@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Balancer } from "react-wrap-balancer";
 import { Button } from "@/components/ui";
 import { CodeEditor } from "@/components/ui/CodeEditor";
@@ -19,9 +20,16 @@ import {
 } from "@/components/ui/LeaderboardPreview";
 import { ToggleLabel, ToggleRoot, ToggleSwitch } from "@/components/ui/Toggle";
 
+const MOCK_ROAST_ID = "550e8400-e29b-41d4-a716-446655440000";
+const HOMEPAGE_CODE_MAX_LENGTH = 2000;
+
 export default function Home() {
   const [code, setCode] = React.useState("");
   const [roastMode, setRoastMode] = React.useState(true);
+  const router = useRouter();
+  const characterCount = code.length;
+  const isOverLimit = characterCount > HOMEPAGE_CODE_MAX_LENGTH;
+  const overLimitCount = Math.max(0, characterCount - HOMEPAGE_CODE_MAX_LENGTH);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -51,30 +59,56 @@ export default function Home() {
           <CodeEditor value={code} onChange={setCode} />
 
           {/* Actions Bar */}
-          <div className="flex items-center justify-between w-full max-w-195">
-            {/* Left: Roast Toggle */}
-            <div className="flex items-center gap-4">
-              <ToggleRoot>
-                <ToggleSwitch
-                  checked={roastMode}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setRoastMode(e.target.checked)
-                  }
-                />
-                <ToggleLabel isOn={roastMode}>roast mode</ToggleLabel>
-              </ToggleRoot>
-              <span className="text-text-tertiary font-ibm text-xs">
-                {"// maximum sarcasm enabled"}
-              </span>
+          <div className="w-full max-w-195">
+            <div className="flex items-center justify-between gap-4">
+              {/* Left: Roast Toggle */}
+              <div className="flex items-center gap-4">
+                <ToggleRoot>
+                  <ToggleSwitch
+                    checked={roastMode}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setRoastMode(e.target.checked)
+                    }
+                  />
+                  <ToggleLabel isOn={roastMode}>roast mode</ToggleLabel>
+                </ToggleRoot>
+                <span className="text-text-tertiary font-ibm text-xs">
+                  {"// maximum sarcasm enabled"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span
+                  className={[
+                    "font-jb text-xs",
+                    isOverLimit ? "text-accent-red" : "text-text-tertiary",
+                  ].join(" ")}
+                >
+                  {characterCount}/{HOMEPAGE_CODE_MAX_LENGTH} chars
+                </span>
+
+                {/* Right: Submit Button */}
+                <Button
+                  variant="default"
+                  disabled={isOverLimit}
+                  className={[
+                    "font-jb text-[13px] font-medium px-6 py-2.5 rounded-none",
+                    isOverLimit
+                      ? "bg-border-primary text-text-tertiary cursor-not-allowed"
+                      : "cursor-pointer bg-accent-green text-[#0a0a0a] hover:bg-accent-green/90",
+                  ].join(" ")}
+                  onClick={() => router.push(`/result/${MOCK_ROAST_ID}`)}
+                >
+                  $ roast_my_code
+                </Button>
+              </div>
             </div>
 
-            {/* Right: Submit Button */}
-            <Button
-              variant="default"
-              className="cursor-pointer bg-accent-green text-[#0a0a0a] hover:bg-accent-green/90 font-jb text-[13px] font-medium px-6 py-2.5 rounded-none"
-            >
-              $ roast_my_code
-            </Button>
+            {isOverLimit && (
+              <p className="mt-2 text-right font-ibm text-xs text-accent-red">
+                {`// limit exceeded: remove ${overLimitCount} characters to continue`}
+              </p>
+            )}
           </div>
 
           {/* Footer Stats */}
@@ -107,25 +141,25 @@ export default function Home() {
             </LeaderboardHeader>
             <LeaderboardTable>
               <LeaderboardTableHead>
-                <LeaderboardTableCell className="w-[40px] text-text-tertiary">
+                <LeaderboardTableCell className="w-10 text-text-tertiary">
                   #
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[60px] text-text-tertiary">
+                <LeaderboardTableCell className="w-15 text-text-tertiary">
                   score
                 </LeaderboardTableCell>
                 <LeaderboardTableCell className="flex-1 text-text-tertiary">
                   code
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[100px] text-text-tertiary text-right">
+                <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
                   lang
                 </LeaderboardTableCell>
               </LeaderboardTableHead>
               {/* Rows */}
               <LeaderboardTableRow>
-                <LeaderboardTableCell className="w-[40px] text-text-tertiary">
+                <LeaderboardTableCell className="w-10 text-text-tertiary">
                   1
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[60px]">
+                <LeaderboardTableCell className="w-15">
                   <LeaderboardScore value={1.2} />
                 </LeaderboardTableCell>
                 <LeaderboardTableCell className="flex-1 text-text-secondary">
@@ -141,15 +175,15 @@ export default function Home() {
                     </code>
                   </div>
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[100px] text-text-tertiary text-right">
+                <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
                   javascript
                 </LeaderboardTableCell>
               </LeaderboardTableRow>
               <LeaderboardTableRow>
-                <LeaderboardTableCell className="w-[40px] text-text-tertiary">
+                <LeaderboardTableCell className="w-10 text-text-tertiary">
                   2
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[60px]">
+                <LeaderboardTableCell className="w-15">
                   <LeaderboardScore value={1.8} />
                 </LeaderboardTableCell>
                 <LeaderboardTableCell className="flex-1 text-text-secondary">
@@ -165,15 +199,15 @@ export default function Home() {
                     </code>
                   </div>
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[100px] text-text-tertiary text-right">
+                <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
                   typescript
                 </LeaderboardTableCell>
               </LeaderboardTableRow>
               <LeaderboardTableRow>
-                <LeaderboardTableCell className="w-[40px] text-text-tertiary">
+                <LeaderboardTableCell className="w-10 text-text-tertiary">
                   3
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[60px]">
+                <LeaderboardTableCell className="w-15">
                   <LeaderboardScore value={2.1} />
                 </LeaderboardTableCell>
                 <LeaderboardTableCell className="flex-1 text-text-secondary">
@@ -186,7 +220,7 @@ export default function Home() {
                     </code>
                   </div>
                 </LeaderboardTableCell>
-                <LeaderboardTableCell className="w-[100px] text-text-tertiary text-right">
+                <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
                   sql
                 </LeaderboardTableCell>
               </LeaderboardTableRow>

@@ -35,7 +35,11 @@ export const DiffLine = React.forwardRef<HTMLDivElement, DiffLineProps>(
     return (
       <div
         ref={ref}
-        className={["flex items-center gap-2 px-4 py-2", bg, className]
+        className={[
+          "flex items-center gap-2 overflow-x-auto px-4 py-2",
+          bg,
+          className,
+        ]
           .filter(Boolean)
           .join(" ")}
         {...props}
@@ -48,7 +52,11 @@ export const DiffLine = React.forwardRef<HTMLDivElement, DiffLineProps>(
         >
           {prefix}
         </span>
-        <span className={["font-jb text-[13px]", codeColor].join(" ")}>
+        <span
+          className={["font-jb text-[13px] whitespace-pre", codeColor].join(
+            " ",
+          )}
+        >
           {code}
         </span>
       </div>
