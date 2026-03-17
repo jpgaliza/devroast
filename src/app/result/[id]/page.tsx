@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import {
   CardDescription,
   CardHeader,
@@ -8,87 +8,21 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
-import { DiffLine, type DiffLineType } from "@/components/ui/DiffLine";
 import { ResultCodePanel } from "@/components/ui/ResultCodePanel";
 import { ScoreRing } from "@/components/ui/ScoreRing";
+import { getTRPCCaller } from "@/trpc/server";
 
-const MOCK_ROAST_ID = "550e8400-e29b-41d4-a716-446655440000";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const RESULT_DATA = {
-  score: 3.5,
-  verdict: "needs_serious_help",
-  headline:
-    '"this code looks like it was written during a power outage... in 2005."',
-  language: "javascript",
-  code: `function calculateTotal(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price;
-  }
-
-  if (total > 100) {
-    console.log("discount applied");
-    total = total * 0.9;
-  }
-
-  // TODO: handle tax calculation
-  // TODO: handle currency conversion
-
-  return total;
-}`,
-};
-
-const ANALYSIS_ITEMS = [
-  {
-    variant: "critical" as const,
-    label: "critical",
-    title: "using var instead of const/let",
-    description:
-      "var is function-scoped and leads to hoisting issues. use const by default, let when reassignment is needed.",
-  },
-  {
-    variant: "warning" as const,
-    label: "warning",
-    title: "imperative loop pattern",
-    description:
-      "for loops are verbose and error-prone vs. reduce() or map() for cleaner, functional transformations.",
-  },
-  {
-    variant: "good" as const,
-    label: "good",
-    title: "clear naming conventions",
-    description:
-      "calculateTotal and items are descriptive, self-documenting names that communicate intent without comments.",
-  },
-  {
-    variant: "good" as const,
-    label: "good",
-    title: "single responsibility",
-    description:
-      "the function does one thing well — calculates a total, no side effects, no mixed concerns, no hidden complexity.",
-  },
-];
-
-const DIFF_LINES: Array<{ type: DiffLineType; code: string }> = [
-  { type: "context", code: "function calculateTotal(items) {" },
-  { type: "removed", code: "  var total = 0;" },
-  { type: "removed", code: "  for (var i = 0; i < items.length; i++) {" },
-  { type: "removed", code: "    total = total + items[i].price;" },
-  { type: "removed", code: "  }" },
-  { type: "removed", code: "" },
-  {
-    type: "added",
-    code: "  return items.reduce((sum, item) => sum + item.price, 0);",
-  },
-  { type: "context", code: "}" },
-];
+export const dynamic = "force-dynamic";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="font-jb text-sm font-bold text-accent-green">//</span>
+      <span className="font-jb text-sm font-bold text-accent-green">
+        {"//"}
+      </span>
       <h2 className="font-jb text-sm font-bold text-text-primary">
         {children}
       </h2>
@@ -96,8 +30,50 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function generateStaticParams() {
-  return [{ id: MOCK_ROAST_ID }];
+function getVerdictBadgeVariant(verdict: string): BadgeVariant {
+  if (verdict === "garbage_fire" || verdict === "needs_serious_help") {
+    return "critical";
+  }
+  if (verdict === "questionable") {
+    return "warning";
+  }
+  return "good";
+}
+
+function getFeedbackCards(
+  feedback: Array<{ content: string; isPositive: boolean }>,
+  score: number,
+): Array<{
+  key: string;
+  variant: BadgeVariant;
+  label: string;
+  title: string;
+  description: string;
+}> {
+  let hasCritical = false;
+
+  return feedback.map((item, index) => {
+    let variant: BadgeVariant;
+
+    if (item.isPositive) {
+      variant = "good";
+    } else if (score < 5 && !hasCritical) {
+      variant = "critical";
+      hasCritical = true;
+    } else {
+      variant = "warning";
+    }
+
+    return {
+      key: `${index}-${item.content}`,
+      variant,
+      label: variant,
+      title: item.content,
+      description: item.isPositive
+        ? "Strength found in this submission."
+        : "Issue that should be improved.",
+    };
+  });
 }
 
 export default async function ResultPage({
@@ -111,31 +87,39 @@ export default async function ResultPage({
     notFound();
   }
 
+  const caller = await getTRPCCaller();
+  const roast = await caller.roast.getById({ id }).catch(() => null);
+
+  if (!roast) {
+    notFound();
+  }
+
   const highlightedCode = await getHighlightedCodeHtml(
-    RESULT_DATA.code,
-    RESULT_DATA.language,
+    roast.code,
+    roast.language,
   );
-  const codeLineCount = RESULT_DATA.code.split(/\r\n|\r|\n/).length;
+  const verdictVariant = getVerdictBadgeVariant(roast.verdict);
+  const analysisItems = getFeedbackCards(roast.feedback, roast.score);
 
   return (
     <main className="min-h-screen flex flex-col">
       <div className="mx-auto flex w-full max-w-360 flex-1 flex-col gap-10 px-5 py-10 md:px-10 md:py-10 lg:px-20">
         <section className="flex flex-col gap-8 md:flex-row md:items-center md:gap-12">
           <div className="shrink-0">
-            <ScoreRing size={180} stroke={4} value={RESULT_DATA.score} />
+            <ScoreRing size={180} stroke={4} value={roast.score} />
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <div className="flex items-center gap-2">
-              <Badge variant="critical">verdict: {RESULT_DATA.verdict}</Badge>
+              <Badge variant={verdictVariant}>verdict: {roast.verdict}</Badge>
             </div>
 
             <p className="max-w-190 font-jb text-xl leading-relaxed text-text-primary md:text-[28px] md:leading-[1.45]">
-              {RESULT_DATA.headline}
+              {roast.headline}
             </p>
 
             <p className="font-jb text-xs text-text-tertiary">
-              lang: {RESULT_DATA.language} {" · "} {codeLineCount} lines
+              lang: {roast.language} {" · "} {roast.linesCount} lines
             </p>
 
             <div>
@@ -161,6 +145,7 @@ export default async function ResultPage({
                   </svg>
                 }
                 className="rounded-none px-3 py-2 text-xs"
+                disabled
               >
                 share_roast
               </Button>
@@ -174,7 +159,7 @@ export default async function ResultPage({
           <SectionLabel>your_submission</SectionLabel>
           <ResultCodePanel
             className="h-106"
-            code={RESULT_DATA.code}
+            code={roast.code}
             highlightedHtml={highlightedCode}
           />
         </section>
@@ -184,9 +169,9 @@ export default async function ResultPage({
         <section className="flex flex-col gap-6">
           <SectionLabel>detailed_analysis</SectionLabel>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {ANALYSIS_ITEMS.map((item) => (
+            {analysisItems.map((item) => (
               <CardRoot
-                key={item.title}
+                key={item.key}
                 className="gap-3 bg-transparent p-4 md:p-5"
               >
                 <CardHeader>
@@ -196,28 +181,6 @@ export default async function ResultPage({
                 <CardDescription>{item.description}</CardDescription>
               </CardRoot>
             ))}
-          </div>
-        </section>
-
-        <div className="h-px w-full bg-border-primary" />
-
-        <section className="flex flex-col gap-6">
-          <SectionLabel>suggested_fix</SectionLabel>
-
-          <div className="overflow-hidden border border-border-primary bg-input">
-            <div className="border-b border-border-primary px-4 py-3 font-jb text-xs text-text-tertiary">
-              your_code.ts {" -> "} improved_code.ts
-            </div>
-            <div className="divide-y divide-border-primary/30">
-              {DIFF_LINES.map((line, index) => (
-                <DiffLine
-                  key={`${line.type}-${index}`}
-                  type={line.type}
-                  code={line.code}
-                  className="py-2.25"
-                />
-              ))}
-            </div>
           </div>
         </section>
       </div>

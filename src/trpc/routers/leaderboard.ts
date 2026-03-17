@@ -1,6 +1,7 @@
 import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { roasts, submissions } from "@/db/schema";
+import { isDatabaseConnectionError } from "@/lib/serverErrors";
 import { createTRPCRouter, publicProcedure } from "@/trpc/init";
 
 const leaderboardPreviewEntrySchema = z.object({
@@ -72,7 +73,13 @@ export const leaderboardRouter = createTRPCRouter({
         })),
       };
     } catch (error) {
-      console.error("[tRPC] leaderboard.preview fallback to empty values", error);
+      if (isDatabaseConnectionError(error)) {
+        console.warn(
+          "[tRPC] leaderboard.preview using fallback because database is unavailable",
+        );
+      } else {
+        console.error("[tRPC] leaderboard.preview fallback to empty values", error);
+      }
       return fallbackLeaderboardPreview;
     }
   }),
@@ -110,7 +117,13 @@ export const leaderboardRouter = createTRPCRouter({
         })),
       };
     } catch (error) {
-      console.error("[tRPC] leaderboard.list fallback to empty values", error);
+      if (isDatabaseConnectionError(error)) {
+        console.warn(
+          "[tRPC] leaderboard.list using fallback because database is unavailable",
+        );
+      } else {
+        console.error("[tRPC] leaderboard.list fallback to empty values", error);
+      }
       return fallbackLeaderboardList;
     }
   }),

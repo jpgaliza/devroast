@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { roasts } from "@/db/schema";
+import { isDatabaseConnectionError } from "@/lib/serverErrors";
 import { createTRPCRouter, publicProcedure } from "@/trpc/init";
 
 const metricsOverviewSchema = z.object({
@@ -31,7 +32,13 @@ export const metricsRouter = createTRPCRouter({
         avgScore: Number(avgScore.toFixed(1)),
       };
     } catch (error) {
-      console.error("[tRPC] metrics.overview fallback to zero values", error);
+      if (isDatabaseConnectionError(error)) {
+        console.warn(
+          "[tRPC] metrics.overview using fallback because database is unavailable",
+        );
+      } else {
+        console.error("[tRPC] metrics.overview fallback to zero values", error);
+      }
       return fallbackMetrics;
     }
   }),

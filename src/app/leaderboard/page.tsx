@@ -1,4 +1,5 @@
-﻿import { LeaderboardEntry } from "@/components/ui";
+﻿import { unstable_cache } from "next/cache";
+import { LeaderboardEntry } from "@/components/ui";
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
 import { getTRPCCaller } from "@/trpc/server";
 
@@ -8,11 +9,21 @@ function formatNumber(n: number): string {
   return new Intl.NumberFormat("en-US").format(n);
 }
 
+const getLeaderboardList = unstable_cache(
+  async () => {
+    const caller = await getTRPCCaller();
+    return caller.leaderboard.list();
+  },
+  ["leaderboard-list"],
+  { revalidate: 3600, tags: ["leaderboard"] },
+);
+
+export const revalidate = 3600;
+
 // ─── Page Component ──────────────────────────────────────────────────────────
 
 export default async function LeaderboardPage() {
-  const caller = await getTRPCCaller();
-  const { totalRoasts, avgScore, entries } = await caller.leaderboard.list();
+  const { totalRoasts, avgScore, entries } = await getLeaderboardList();
 
   const entriesWithHighlight = await Promise.all(
     entries.map(async (entry) => ({
@@ -67,7 +78,9 @@ export default async function LeaderboardPage() {
         ) : (
           <div className="flex flex-col items-center justify-center gap-3 py-20 text-text-tertiary">
             <span className="font-jb text-sm">// no submissions yet</span>
-            <span className="font-ibm text-xs">be the first to get roasted</span>
+            <span className="font-ibm text-xs">
+              be the first to get roasted
+            </span>
           </div>
         )}
 
