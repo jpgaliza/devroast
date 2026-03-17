@@ -24,6 +24,12 @@ const aiRoastSchema = z.object({
 		.max(5),
 });
 
+const aiImprovementSchema = z.object({
+	summary: z.string().min(1),
+	suggestions: z.array(z.string().min(1)).min(3).max(6),
+	improvedCode: z.string().min(1),
+});
+
 let openaiClient: OpenAI | null = null;
 
 function getOpenAIClient() {
@@ -59,6 +65,37 @@ function getUserPrompt(code: string, language: string) {
 		"  ]",
 		"}",
 		"Code:",
+		`\`\`\`${language}`,
+		code,
+		"```",
+	].join("\n");
+}
+
+function getImprovementPrompt(
+	code: string,
+	language: string,
+	feedback: FeedbackItem[],
+) {
+	const feedbackLines = feedback
+		.map((item, index) => `${index + 1}. ${item.content}`)
+		.join("\n");
+
+	return [
+		`Improve the following ${language} code based on the review feedback.`,
+		"Return a JSON object exactly matching this structure:",
+		"{",
+		'  "summary": <one short sentence describing the overall refactor>,',
+		'  "suggestions": [<3 to 6 short, concrete improvements>],',
+		'  "improvedCode": <full improved code string, same language>,',
+		"}",
+		"Rules:",
+		"- Keep original behavior unless it is clearly broken.",
+		"- Focus on readability, naming, safety, and maintainability.",
+		"- Do not include markdown code fences in improvedCode.",
+		"- Keep improvedCode as a complete file/snippet.",
+		"Review feedback:",
+		feedbackLines,
+		"Original code:",
 		`\`\`\`${language}`,
 		code,
 		"```",
@@ -104,6 +141,49 @@ export async function generateRoast(
 		score: Number(parsed.score.toFixed(1)),
 		headline: parsed.headline,
 		feedback: parsed.feedback,
+	};
+}
+
+export async function generateImprovedCode(
+	code: string,
+	language: string,
+	feedback: FeedbackItem[],
+): Promise<{
+	summary: string;
+	suggestions: string[];
+	improvedCode: string;
+}> {
+	const client = getOpenAIClient();
+
+	const completion = await client.chat.completions.create({
+		model: AI_MODEL,
+		response_format: { type: "json_object" },
+		temperature: 0.3,
+		messages: [
+			{
+				role: "system",
+				content:
+					"You are a senior software engineer that writes practical and safe refactors.",
+			},
+			{
+				role: "user",
+				content: getImprovementPrompt(code, language, feedback),
+			},
+		],
+	});
+
+	const content = completion.choices[0]?.message?.content;
+	if (!content) {
+		throw new Error("OpenAI returned an empty improvement response");
+	}
+
+	const parsedJson = JSON.parse(content) as unknown;
+	const parsed = aiImprovementSchema.parse(parsedJson);
+
+	return {
+		summary: parsed.summary,
+		suggestions: parsed.suggestions,
+		improvedCode: parsed.improvedCode,
 	};
 }
 

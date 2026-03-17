@@ -1,5 +1,6 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui";
+import { RoastSuggestionsDiff, ShareRoastButton } from "@/components/ui";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import {
   CardDescription,
@@ -10,10 +11,18 @@ import {
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
 import { ResultCodePanel } from "@/components/ui/ResultCodePanel";
 import { ScoreRing } from "@/components/ui/ScoreRing";
-import { getTRPCCaller } from "@/trpc/server";
+import { generateImprovedCode } from "@/lib/ai";
+import { getAbsoluteUrl } from "@/lib/siteUrl";
+import {
+  formatVerdictLabel,
+  getRoastCanonicalPath,
+  getRoastOgImagePath,
+  getRoastResultById,
+} from "./resultData";
 
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+interface ResultPageProps {
+  params: Promise<{ id: string }>;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -76,28 +85,22 @@ function getFeedbackCards(
   });
 }
 
-export default async function ResultPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ResultPage({ params }: ResultPageProps) {
   const { id } = await params;
-
-  if (!UUID_PATTERN.test(id)) {
-    notFound();
-  }
-
-  const caller = await getTRPCCaller();
-  const roast = await caller.roast.getById({ id }).catch(() => null);
+  const roast = await getRoastResultById(id);
 
   if (!roast) {
     notFound();
   }
 
-  const highlightedCode = await getHighlightedCodeHtml(
-    roast.code,
-    roast.language,
-  );
+  const sharePath = getRoastOgImagePath(id);
+
+  const [highlightedCode, improvementPlan] = await Promise.all([
+    getHighlightedCodeHtml(roast.code, roast.language),
+    generateImprovedCode(roast.code, roast.language, roast.feedback).catch(
+      () => null,
+    ),
+  ]);
   const verdictVariant = getVerdictBadgeVariant(roast.verdict);
   const analysisItems = getFeedbackCards(roast.feedback, roast.score);
 
@@ -123,9 +126,10 @@ export default async function ResultPage({
             </p>
 
             <div>
-              <Button
+              <ShareRoastButton
                 variant="ghost"
                 size="sm"
+                relativeUrl={sharePath}
                 icon={
                   <svg
                     width="12"
@@ -145,10 +149,9 @@ export default async function ResultPage({
                   </svg>
                 }
                 className="rounded-none px-3 py-2 text-xs"
-                disabled
               >
                 share_roast
-              </Button>
+              </ShareRoastButton>
             </div>
           </div>
         </section>
@@ -183,7 +186,91 @@ export default async function ResultPage({
             ))}
           </div>
         </section>
+
+        {improvementPlan ? (
+          <>
+            <div className="h-px w-full bg-border-primary" />
+
+            <section className="flex flex-col gap-6">
+              <SectionLabel>suggested_improvements</SectionLabel>
+
+              <p className="max-w-220 font-ibm text-sm leading-relaxed text-text-secondary">
+                {improvementPlan.summary}
+              </p>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {improvementPlan.suggestions.map((suggestion, index) => (
+                  <CardRoot
+                    key={`${index}-${suggestion}`}
+                    className="gap-2 bg-transparent p-4"
+                  >
+                    <CardTitle className="text-accent-green">
+                      fix_{String(index + 1).padStart(2, "0")}
+                    </CardTitle>
+                    <CardDescription>{suggestion}</CardDescription>
+                  </CardRoot>
+                ))}
+              </div>
+
+              <RoastSuggestionsDiff
+                originalCode={roast.code}
+                improvedCode={improvementPlan.improvedCode}
+                language={roast.language}
+              />
+            </section>
+          </>
+        ) : null}
       </div>
     </main>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: ResultPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const roast = await getRoastResultById(id);
+
+  if (!roast) {
+    return {
+      title: "Roast not found | devroast",
+      description: "This roast does not exist or is no longer available.",
+    };
+  }
+
+  const canonicalPath = getRoastCanonicalPath(id);
+  const imagePath = getRoastOgImagePath(id);
+  const verdict = formatVerdictLabel(roast.verdict);
+  const title = `${roast.score.toFixed(1)}/10 roast - ${verdict} | devroast`;
+  const description = roast.headline;
+  const imageUrl = getAbsoluteUrl(imagePath);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalPath,
+      siteName: "devroast",
+      type: "article",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `devroast score ${roast.score.toFixed(1)} out of 10`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
 }

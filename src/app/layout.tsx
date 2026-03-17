@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { NavbarRoot, NavbarBrand, NavbarLinks } from "@/components/ui";
 import { Logo } from "@/components/ui/Logo";
 import { NavLink } from "@/components/ui/NavLink";
+import { getSiteUrl } from "@/lib/siteUrl";
 import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: getSiteUrl(),
   title: "devroast — paste your code, get roasted",
   description:
     "Drop your code and we'll rate it — brutally honest or full roast mode",

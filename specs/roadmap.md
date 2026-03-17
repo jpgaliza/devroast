@@ -53,6 +53,7 @@ Dois modos distintos controlados pelo campo `mode` da submission:
 - **`honest`**: revisão construtiva, tom profissional
 
 Saída esperada do modelo (JSON estruturado):
+
 ```ts
 {
   score: number,          // 0.0–10.0
@@ -219,15 +220,15 @@ Saída esperada do modelo (JSON estruturado):
 
 ## Ordem de Prioridade Resumida
 
-| # | Feature | Impacto | Esforço |
-|---|---------|---------|---------|
-| 1 | Fluxo de submissão real (tRPC mutation + IA) | Alto | Alto |
-| 2 | Página de resultado real (sem mock) | Alto | Médio |
-| 3 | Detecção de linguagem no HomeInteractive | Médio | Baixo |
-| 4 | LeaderboardEntry clicável → `/result/[id]` | Médio | Baixo |
-| 5 | Language selector na homepage | Médio | Baixo |
-| 6 | Loading state no submit | Médio | Baixo |
-| 7 | Share button + OG Image | Médio | Médio |
-| 8 | Filtros + paginação no leaderboard | Baixo | Médio |
-| 9 | Auth GitHub + perfil | Baixo | Alto |
-| 10 | Rate limiting + infraestrutura | Baixo | Médio |
+| #   | Feature                                      | Impacto | Esforço |
+| --- | -------------------------------------------- | ------- | ------- |
+| 1   | Fluxo de submissão real (tRPC mutation + IA) | Alto    | Alto    |
+| 2   | Página de resultado real (sem mock)          | Alto    | Médio   |
+| 3   | Detecção de linguagem no HomeInteractive     | Médio   | Baixo   |
+| 4   | LeaderboardEntry clicável → `/result/[id]`   | Médio   | Baixo   |
+| 5   | Language selector na homepage                | Médio   | Baixo   |
+| 6   | Loading state no submit                      | Médio   | Baixo   |
+| 7   | Share button + OG Image                      | Médio   | Médio   |
+| 8   | Filtros + paginação no leaderboard           | Baixo   | Médio   |
+| 9   | Auth GitHub + perfil                         | Baixo   | Alto    |
+| 10  | Rate limiting + infraestrutura               | Baixo   | Médio   |

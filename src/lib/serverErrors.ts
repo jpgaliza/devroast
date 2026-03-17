@@ -32,7 +32,7 @@ function getStringProperty(value: unknown, key: string) {
     return null;
   }
 
-  const property = value[key as keyof typeof value];
+  const property = (value as Record<string, unknown>)[key];
   return typeof property === "string" ? property : null;
 }
 
@@ -47,8 +47,9 @@ export function isDatabaseConnectionError(error: unknown) {
 
     return (
       (code !== null && DATABASE_ERROR_CODES.has(code)) ||
-      message?.includes("ECONNREFUSED") === true ||
-      message?.includes("Failed query") === true
+      (message !== null &&
+        (message.includes("ECONNREFUSED") ||
+          message.includes("Failed query")))
     );
   });
 }

@@ -14,3 +14,5 @@ export * from "./Card";
 export * from "./DiffLine";
 export * from "./LanguageSelector";
 export * from "./LeaderboardEntry";
+export * from "./RoastSuggestionsDiff";
+export * from "./ShareRoastButton";
