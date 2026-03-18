@@ -173,14 +173,23 @@ export function HomeInteractive({
                 isSubmitDisabled
                   ? "bg-border-primary text-text-tertiary cursor-not-allowed"
                   : "cursor-pointer bg-accent-green text-[#0a0a0a] hover:bg-accent-green/90",
+                isBusy ? "button-loading" : "",
               ].join(" ")}
               onClick={handleSubmit}
             >
-              {isNavigating
-                ? `$ opening_result${analyzingDots}`
-                : submitMutation.isPending
-                  ? `$ analyzing${analyzingDots}`
-                  : "$ roast_my_code"}
+              {isNavigating ? (
+                <>
+                  $ opening_result
+                  <span className="inline-block w-4 text-left">{analyzingDots}</span>
+                </>
+              ) : submitMutation.isPending ? (
+                <>
+                  $ analyzing
+                  <span className="inline-block w-4 text-left">{analyzingDots}</span>
+                </>
+              ) : (
+                "$ roast_my_code"
+              )}
             </Button>
           </div>
         </div>

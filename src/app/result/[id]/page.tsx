@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { RoastSuggestionsDiff, ShareRoastButton } from "@/components/ui";
+import { ShareRoastButton } from "@/components/ui";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import {
   CardDescription,
@@ -19,6 +19,7 @@ import {
   getRoastOgImagePath,
   getRoastResultById,
 } from "./resultData";
+import { ResponsiveDiff } from "./_components/ResponsiveDiff";
 
 interface ResultPageProps {
   params: Promise<{ id: string }>;
@@ -107,17 +108,17 @@ export default async function ResultPage({ params }: ResultPageProps) {
   return (
     <main className="min-h-screen flex flex-col">
       <div className="mx-auto flex w-full max-w-360 flex-1 flex-col gap-10 px-5 py-10 md:px-10 md:py-10 lg:px-20">
-        <section className="flex flex-col gap-8 md:flex-row md:items-center md:gap-12">
+        <section className="flex flex-col items-center gap-8 md:flex-row md:items-center md:gap-12">
           <div className="shrink-0">
             <ScoreRing size={180} stroke={4} value={roast.score} />
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-4 md:items-start">
             <div className="flex items-center gap-2">
               <Badge variant={verdictVariant}>verdict: {roast.verdict}</Badge>
             </div>
 
-            <p className="max-w-190 font-jb text-xl leading-relaxed text-text-primary md:text-[28px] md:leading-[1.45]">
+            <p className="max-w-190 text-center font-jb text-xl leading-relaxed text-text-primary md:text-left md:text-[28px] md:leading-[1.45]">
               {roast.headline}
             </p>
 
@@ -212,7 +213,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
                 ))}
               </div>
 
-              <RoastSuggestionsDiff
+              <ResponsiveDiff
                 originalCode={roast.code}
                 improvedCode={improvementPlan.improvedCode}
                 language={roast.language}

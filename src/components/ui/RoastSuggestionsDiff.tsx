@@ -8,6 +8,8 @@ export interface RoastSuggestionsDiffProps extends React.HTMLAttributes<HTMLDivE
   originalCode: string;
   improvedCode: string;
   language: string;
+  /** Diff layout style: "split" for side-by-side, "unified" for stacked */
+  diffStyle?: "split" | "unified";
 }
 
 const LANGUAGE_EXTENSION: Record<string, string> = {
@@ -33,12 +35,6 @@ const LANGUAGE_EXTENSION: Record<string, string> = {
   plaintext: "txt",
 };
 
-const DIFF_OPTIONS = {
-  theme: { dark: "pierre-dark", light: "pierre-dark" },
-  diffStyle: "split",
-  disableFileHeader: true,
-} as const;
-
 function getFileExtension(language: string) {
   return LANGUAGE_EXTENSION[language] ?? "txt";
 }
@@ -46,7 +42,7 @@ function getFileExtension(language: string) {
 export const RoastSuggestionsDiff = React.forwardRef<
   HTMLDivElement,
   RoastSuggestionsDiffProps
->(({ className, originalCode, improvedCode, language, ...props }, ref) => {
+>(({ className, originalCode, improvedCode, language, diffStyle = "split", ...props }, ref) => {
   const filename = React.useMemo(
     () => `submission.${getFileExtension(language)}`,
     [language],
@@ -62,6 +58,15 @@ export const RoastSuggestionsDiff = React.forwardRef<
     [filename, improvedCode],
   );
 
+  const diffOptions = React.useMemo(
+    () => ({
+      theme: { dark: "pierre-dark", light: "pierre-dark" },
+      diffStyle,
+      disableFileHeader: true,
+    }),
+    [diffStyle],
+  );
+
   return (
     <div
       ref={ref}
@@ -74,7 +79,7 @@ export const RoastSuggestionsDiff = React.forwardRef<
       <MultiFileDiff
         oldFile={oldFile}
         newFile={newFile}
-        options={DIFF_OPTIONS}
+        options={diffOptions}
       />
     </div>
   );
