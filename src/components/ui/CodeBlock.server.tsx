@@ -40,10 +40,15 @@ export const getHighlightedCodeHtml = cache(
         await highlighter.loadLanguage(language as BundledLanguage);
       }
 
-      return highlighter.codeToHtml(code, {
+      const html = highlighter.codeToHtml(code, {
         lang: language as BundledLanguage,
         theme: cssVarsTheme,
       });
+
+      // Remove any .line wrapper divs/spans that might be adding spacing
+      return html
+        .replace(/<span class="line">/g, "")
+        .replace(/<\/span>\n/g, "\n");
     } catch {
       return null;
     }

@@ -88,6 +88,33 @@ body {
   line-height: 1.4;
 }
 
+/* Leaderboard code block styling */
+.code-highlighted-leaderboard pre.shiki {
+  padding: 14px 16px;
+  margin: 0;
+  font-family: var(--font-jb);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.code-highlighted-leaderboard pre.shiki code {
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.code-highlighted-leaderboard pre.shiki * {
+  line-height: 20px !important;
+  font-size: 12px !important;
+  font-family: var(--font-jb) !important;
+}
+
+.code-highlighted-leaderboard span {
+  margin: 0;
+  padding: 0;
+}
+
 /* ─── Custom scrollbar ─── */
 * {
   scrollbar-width: thin;
