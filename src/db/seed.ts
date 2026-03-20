@@ -54,7 +54,7 @@ document.write(result)`,
   var query = "SELECT * FROM users WHERE id = " + id
   return db.execute(query)
 }
-// TODO: add validation someday`,
+  // input validation intentionally omitted`,
   },
   {
     language: "javascript",
@@ -64,7 +64,7 @@ document.write(result)`,
       getTheRest(c, function(d) {
         getLastBit(d, function(e) {
           console.log(e)
-          // TODO: error handling
+                  // errors intentionally ignored
         })
       })
     })

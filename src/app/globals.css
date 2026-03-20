@@ -26,9 +26,11 @@
   --color-syn-comment: #8b8b8b;
 
   --font-jb:
-    "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    var(--font-jb-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
   --font-ibm:
-    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    var(--font-ibm-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
 }
 
 html,
@@ -210,7 +212,8 @@ pre code {
 
 /* ─── Button loading animation ─── */
 @keyframes borderPulse {
-  0%, 100% {
+  0%,
+  100% {
     border-color: var(--color-accent-green);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }

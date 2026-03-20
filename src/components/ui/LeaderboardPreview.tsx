@@ -1,4 +1,5 @@
 import * as React from "react";
+import { twMerge } from "tailwind-merge";
 
 /* ─── Sub-components ─── */
 
@@ -13,9 +14,10 @@ const LeaderboardRoot = ({
 }: LeaderboardRootProps) => {
   return (
     <div
-      className={["w-full max-w-[960px] flex flex-col gap-4 md:gap-8 px-4 md:px-0", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge(
+        "w-full max-w-240 flex flex-col gap-4 md:gap-8 px-4 md:px-0",
+        className,
+      )}
       {...props}
     >
       {children}
@@ -35,12 +37,10 @@ const LeaderboardHeader = ({
 }: LeaderboardHeaderProps) => {
   return (
     <div
-      className={[
+      className={twMerge(
         "flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       {children}
@@ -61,11 +61,7 @@ const LeaderboardTitle = ({
   className,
 }: LeaderboardTitleProps) => {
   return (
-    <div
-      className={["flex items-center gap-2", className]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <div className={twMerge("flex items-center gap-2", className)}>
       <span className="text-accent-green font-jb text-xs md:text-sm font-bold">
         {prompt}
       </span>
@@ -86,9 +82,7 @@ const LeaderboardSubtitle = ({
 }) => {
   return (
     <p
-      className={["text-text-tertiary font-ibm text-[13px]", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge("text-text-tertiary font-ibm text-[13px]", className)}
     >
       {children}
     </p>
@@ -107,9 +101,10 @@ const LeaderboardTable = ({
 }: LeaderboardTableProps) => {
   return (
     <div
-      className={["w-full border border-border-primary overflow-x-auto", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge(
+        "w-full border border-border-primary overflow-x-auto",
+        className,
+      )}
       {...props}
     >
       {children}
@@ -127,12 +122,10 @@ const LeaderboardTableHead = ({
 }) => {
   return (
     <div
-      className={[
+      className={twMerge(
         "flex items-center h-8 md:h-10 px-3 md:px-5 bg-bg-surface border-b border-border-primary min-w-full",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       {children}
     </div>
@@ -147,12 +140,10 @@ const LeaderboardTableRow = ({
 }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
-      className={[
+      className={twMerge(
         "flex items-start px-3 md:px-5 py-3 md:py-4 border-b border-border-primary last:border-b-0 min-w-full",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       {children}
@@ -167,10 +158,7 @@ const LeaderboardTableCell = ({
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
-    <span
-      className={["font-jb text-xs", className].filter(Boolean).join(" ")}
-      {...props}
-    >
+    <span className={twMerge("font-jb text-xs", className)} {...props}>
       {children}
     </span>
   );
@@ -186,12 +174,10 @@ const LeaderboardFooter = ({
 }) => {
   return (
     <p
-      className={[
+      className={twMerge(
         "text-text-tertiary font-ibm text-xs text-center",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     >
       {children}
     </p>
@@ -212,11 +198,7 @@ const LeaderboardScore = ({ value, className }: LeaderboardScoreProps) => {
         ? "text-accent-amber"
         : "text-accent-green";
   return (
-    <span
-      className={[`font-jb text-xs font-bold ${color}`, className]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <span className={twMerge(`font-jb text-xs font-bold ${color}`, className)}>
       {value.toFixed(1)}
     </span>
   );

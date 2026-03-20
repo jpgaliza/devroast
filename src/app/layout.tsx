@@ -1,7 +1,22 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono, IBM_Plex_Mono } from "next/font/google";
 import { getSiteUrl } from "@/lib/siteUrl";
 import { TRPCReactProvider } from "@/trpc/client";
 import "./globals.css";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-jb-mono",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-ibm-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -16,13 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="en"
+      className={`${jetbrainsMono.variable} ${ibmPlexMono.variable}`}
+    >
       <body className="antialiased">
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

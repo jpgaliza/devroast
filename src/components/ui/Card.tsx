@@ -1,4 +1,5 @@
 import * as React from "react";
+import { twMerge } from "tailwind-merge";
 
 /* ─── Sub-components ─── */
 
@@ -9,12 +10,10 @@ interface CardRootProps extends React.HTMLAttributes<HTMLDivElement> {
 const CardRoot = ({ children, className, ...props }: CardRootProps) => {
   return (
     <div
-      className={[
+      className={twMerge(
         "flex flex-col gap-3 border border-border-primary p-5",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       {children}
@@ -29,12 +28,7 @@ const CardHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div
-      className={["flex items-center gap-2", className]
-        .filter(Boolean)
-        .join(" ")}
-      {...props}
-    >
+    <div className={twMerge("flex items-center gap-2", className)} {...props}>
       {children}
     </div>
   );
@@ -48,9 +42,7 @@ const CardTitle = ({
 }: React.HTMLAttributes<HTMLParagraphElement>) => {
   return (
     <p
-      className={["font-jb text-[13px] text-text-primary", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge("font-jb text-[13px] text-text-primary", className)}
       {...props}
     >
       {children}
@@ -66,12 +58,10 @@ const CardDescription = ({
 }: React.HTMLAttributes<HTMLParagraphElement>) => {
   return (
     <p
-      className={[
+      className={twMerge(
         "font-ibm text-xs text-text-secondary leading-relaxed",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       {children}

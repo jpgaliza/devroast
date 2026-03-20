@@ -1,4 +1,5 @@
 import * as React from "react";
+import { twMerge } from "tailwind-merge";
 
 /* ─── Sub-components ─── */
 
@@ -9,12 +10,10 @@ interface NavbarRootProps extends React.HTMLAttributes<HTMLElement> {
 const NavbarRoot = ({ children, className, ...props }: NavbarRootProps) => {
   return (
     <nav
-      className={[
+      className={twMerge(
         "flex items-center justify-between h-14 px-10 bg-page border-b border-border-primary",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       {children}
@@ -29,12 +28,7 @@ const NavbarBrand = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div
-      className={["flex items-center gap-2", className]
-        .filter(Boolean)
-        .join(" ")}
-      {...props}
-    >
+    <div className={twMerge("flex items-center gap-2", className)} {...props}>
       {children}
     </div>
   );
@@ -47,12 +41,7 @@ const NavbarLinks = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div
-      className={["flex items-center gap-6", className]
-        .filter(Boolean)
-        .join(" ")}
-      {...props}
-    >
+    <div className={twMerge("flex items-center gap-6", className)} {...props}>
       {children}
     </div>
   );

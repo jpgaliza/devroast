@@ -1,4 +1,5 @@
 import * as React from "react";
+import { twMerge } from "tailwind-merge";
 
 /* ─── Sub-components ─── */
 
@@ -8,10 +9,7 @@ interface InputRootProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const InputRoot = ({ children, className, ...props }: InputRootProps) => {
   return (
-    <div
-      className={["flex flex-col gap-1", className].filter(Boolean).join(" ")}
-      {...props}
-    >
+    <div className={twMerge("flex flex-col gap-1", className)} {...props}>
       {children}
     </div>
   );
@@ -25,9 +23,7 @@ const InputLabel = ({
 }: React.LabelHTMLAttributes<HTMLLabelElement>) => {
   return (
     <label
-      className={["text-sm font-medium text-text-secondary", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge("text-sm font-medium text-text-secondary", className)}
       {...props}
     >
       {children}
@@ -43,12 +39,10 @@ const InputField = React.forwardRef<
   return (
     <input
       ref={ref}
-      className={[
+      className={twMerge(
         "rounded-md border border-border-primary bg-input text-text-primary px-3 py-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     />
   );

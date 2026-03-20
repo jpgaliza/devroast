@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/Button";
 
 export interface ShareRoastButtonProps extends Omit<ButtonProps, "onClick"> {
   relativeUrl: string;

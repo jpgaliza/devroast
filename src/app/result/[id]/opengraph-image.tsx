@@ -1,5 +1,8 @@
 import { ImageResponse } from "@takumi-rs/image-response";
-import { formatVerdictLabel, getRoastResultById } from "./resultData";
+import {
+  formatVerdictLabel,
+  getRoastResultById,
+} from "@/app/(with-nav)/result/[id]/resultData";
 
 export const runtime = "nodejs";
 export const alt = "devroast roast share card";
@@ -196,7 +199,7 @@ function RoastOgCard({
             textWrap: "balance",
           }}
         >
-          “{clampHeadline(headline)}”
+          "{clampHeadline(headline)}"
         </p>
 
         <div

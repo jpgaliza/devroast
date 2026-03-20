@@ -17,8 +17,12 @@ export function getRoastCanonicalPath(id: string) {
   return `/result/${id}`;
 }
 
-export function getRoastOgImagePath(id: string) {
+export function getRoastSharePath(id: string) {
   return `/result/${id}/share`;
+}
+
+export function getRoastOgImagePath(id: string) {
+  return getRoastSharePath(id);
 }
 
 export function formatVerdictLabel(verdict: string) {
