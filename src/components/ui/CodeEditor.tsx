@@ -40,6 +40,16 @@ export const CodeEditor = React.forwardRef<
     const preRef = React.useRef<HTMLPreElement>(null);
     const lineNumbersRef = React.useRef<HTMLDivElement>(null);
     const [isFocused, setIsFocused] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const { detectedLanguage, setDetectedLanguage } =
       useLanguageDetection(value);
@@ -67,20 +77,23 @@ export const CodeEditor = React.forwardRef<
     const lineCount = React.useMemo(() => {
       if (!value) {
         // Calculate how many lines fit in the editor height
-        // Editor height: 480px - 40px (header) = 440px
+        // Mobile: 380px - 32px (header) = 348px
+        // Desktop: 480px - 40px (header) = 440px
         // Padding: 16px top + 16px bottom = 32px
-        // Available: 440px - 32px = 408px
+        // Available mobile: 348px - 32px = 316px
+        // Available desktop: 440px - 32px = 408px
         // Line height: 20px
-        // Lines: 408px / 20px = 20.4 ≈ 20 lines
-        return 20;
+        // Lines mobile: 316px / 20px = 15.8 ≈ 16 lines
+        // Lines desktop: 408px / 20px = 20.4 ≈ 20 lines
+        return isMobile ? 16 : 20;
       }
       const lines = value.split("\n");
       // Don't count empty trailing lines
       const actualLines = value.endsWith("\n")
         ? lines.length - 1
         : lines.length;
-      return Math.max(actualLines, 20);
-    }, [value]);
+      return Math.max(actualLines, isMobile ? 16 : 20);
+    }, [value, isMobile]);
 
     // Sync scroll between textarea and pre
     const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -98,18 +111,18 @@ export const CodeEditor = React.forwardRef<
     return (
       <div
         className={[
-          "w-full max-w-[780px] h-[480px] bg-input border border-border-primary rounded-sm overflow-hidden flex flex-col relative",
+          "w-full max-w-[780px] h-[380px] md:h-[480px] bg-input border border-border-primary rounded-sm overflow-hidden flex flex-col relative",
           className,
         ]
           .filter(Boolean)
           .join(" ")}
       >
         {/* Window Header */}
-        <div className="flex items-center justify-between h-10 px-4 border-b border-border-primary shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-accent-red" />
-            <span className="w-3 h-3 rounded-full bg-accent-amber" />
-            <span className="w-3 h-3 rounded-full bg-accent-green" />
+        <div className="flex items-center justify-between h-8 md:h-10 px-3 md:px-4 border-b border-border-primary shrink-0">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-accent-red" />
+            <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-accent-amber" />
+            <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-accent-green" />
           </div>
           {showLanguageSelector && (
             <LanguageSelector
@@ -130,12 +143,12 @@ export const CodeEditor = React.forwardRef<
           {/* Line Numbers */}
           <div
             ref={lineNumbersRef}
-            className="w-12 bg-bg-surface border-r border-border-primary shrink-0 overflow-y-auto overflow-x-hidden hide-scrollbar"
+            className="w-9 md:w-12 bg-bg-surface border-r border-border-primary shrink-0 overflow-y-auto overflow-x-hidden hide-scrollbar"
             style={{
               paddingTop: "16px",
               paddingBottom: "16px",
-              paddingLeft: "12px",
-              paddingRight: "12px",
+              paddingLeft: "8px",
+              paddingRight: "8px",
             }}
           >
             {Array.from({ length: lineCount }, (_, i) => (
@@ -175,12 +188,13 @@ export const CodeEditor = React.forwardRef<
               placeholder={!value ? (placeholder ?? PLACEHOLDER_LINES) : ""}
               spellCheck={false}
               maxLength={maxLength}
-              className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-text-primary resize-none outline-none placeholder:text-text-tertiary overflow-auto"
+              className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-text-primary resize-none outline-none placeholder:text-text-tertiary overflow-auto px-3 md:px-4"
               style={{
                 fontFamily: "var(--font-jb)",
                 fontSize: "12px",
                 lineHeight: "20px",
-                padding: "16px",
+                paddingTop: "16px",
+                paddingBottom: "16px",
                 margin: 0,
                 border: "none",
                 whiteSpace: "pre",
@@ -191,12 +205,13 @@ export const CodeEditor = React.forwardRef<
             <pre
               ref={preRef}
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full bg-transparent text-text-primary resize-none outline-none overflow-auto pointer-events-none"
+              className="absolute inset-0 w-full h-full bg-transparent text-text-primary resize-none outline-none overflow-auto pointer-events-none px-3 md:px-4"
               style={{
                 fontFamily: "var(--font-jb)",
                 fontSize: "12px",
                 lineHeight: "20px",
-                padding: "16px",
+                paddingTop: "16px",
+                paddingBottom: "16px",
                 margin: 0,
                 border: "none",
                 whiteSpace: "pre",

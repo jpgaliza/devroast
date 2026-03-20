@@ -19,7 +19,7 @@ export function HomeMetricsNumbers({
   }, []);
 
   return (
-    <div className="flex items-center justify-center gap-6 text-text-tertiary font-ibm text-xs">
+    <div className="flex flex-row items-center justify-center gap-4 md:gap-6 text-text-tertiary font-ibm text-xs px-4">
       <span>
         <NumberFlow
           value={shouldAnimate ? roastedCodes : 0}

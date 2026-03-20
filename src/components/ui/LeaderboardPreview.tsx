@@ -13,7 +13,7 @@ const LeaderboardRoot = ({
 }: LeaderboardRootProps) => {
   return (
     <div
-      className={["w-full max-w-[960px] flex flex-col gap-8", className]
+      className={["w-full max-w-[960px] flex flex-col gap-4 md:gap-8 px-4 md:px-0", className]
         .filter(Boolean)
         .join(" ")}
       {...props}
@@ -36,7 +36,7 @@ const LeaderboardHeader = ({
   return (
     <div
       className={[
-        "flex items-center justify-between w-full",
+        "flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-4",
         className,
       ]
         .filter(Boolean)
@@ -66,10 +66,10 @@ const LeaderboardTitle = ({
         .filter(Boolean)
         .join(" ")}
     >
-      <span className="text-accent-green font-jb text-sm font-bold">
+      <span className="text-accent-green font-jb text-xs md:text-sm font-bold">
         {prompt}
       </span>
-      <span className="text-text-primary font-jb text-sm font-bold">
+      <span className="text-text-primary font-jb text-xs md:text-sm font-bold">
         {children}
       </span>
     </div>
@@ -107,7 +107,7 @@ const LeaderboardTable = ({
 }: LeaderboardTableProps) => {
   return (
     <div
-      className={["w-full border border-border-primary", className]
+      className={["w-full border border-border-primary overflow-x-auto", className]
         .filter(Boolean)
         .join(" ")}
       {...props}
@@ -128,7 +128,7 @@ const LeaderboardTableHead = ({
   return (
     <div
       className={[
-        "flex items-center h-10 px-5 bg-bg-surface border-b border-border-primary",
+        "flex items-center h-8 md:h-10 px-3 md:px-5 bg-bg-surface border-b border-border-primary min-w-full",
         className,
       ]
         .filter(Boolean)
@@ -148,7 +148,7 @@ const LeaderboardTableRow = ({
   return (
     <div
       className={[
-        "flex items-start px-5 py-4 border-b border-border-primary last:border-b-0",
+        "flex items-start px-3 md:px-5 py-3 md:py-4 border-b border-border-primary last:border-b-0 min-w-full",
         className,
       ]
         .filter(Boolean)

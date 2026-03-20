@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -30,6 +31,8 @@ export interface LeaderboardEntryProps
   extends
     React.ComponentPropsWithoutRef<"div">,
     VariantProps<typeof leaderboardEntryVariants> {
+  /** Roast id used to navigate to the result page */
+  roastId?: string;
   /** Rank position in the leaderboard */
   rank: number;
   /** Score value (lower is worse) */
@@ -53,6 +56,7 @@ export const LeaderboardEntry = React.forwardRef<
   (
     {
       className,
+      roastId,
       rank,
       score,
       code,
@@ -81,34 +85,72 @@ export const LeaderboardEntry = React.forwardRef<
         {...props}
       >
         {/* Meta Row */}
-        <div className="flex h-12 w-full items-center justify-between border-b border-border-primary px-5">
+        <div className="flex h-10 md:h-12 w-full items-center justify-between border-b border-border-primary px-3 md:px-5">
           {/* Left: Rank + Score */}
-          <div className="flex items-center gap-4">
-            {/* Rank */}
-            <div className="flex items-center gap-1.5">
-              <span className="font-jb text-[13px] text-text-tertiary">#</span>
-              <span className="font-jb text-[13px] font-bold text-accent-amber">
-                {rank}
-              </span>
-            </div>
+          {roastId ? (
+            <Link
+              href={`/result/${roastId}`}
+              aria-label={`Open roast #${rank} with score ${score.toFixed(1)}`}
+              className="flex items-center gap-2 md:gap-4 cursor-pointer rounded-sm transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            >
+              {/* Rank */}
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <span className="font-jb text-xs md:text-[13px] text-text-tertiary">
+                  #
+                </span>
+                <span className="font-jb text-xs md:text-[13px] font-bold text-accent-amber">
+                  {rank}
+                </span>
+              </div>
 
-            {/* Score */}
-            <div className="flex items-center gap-1.5">
-              <span className="font-jb text-xs text-text-tertiary">score:</span>
-              <span
-                className={scoreVariants({ severity: getScoreSeverity(score) })}
-              >
-                {score.toFixed(1)}
-              </span>
+              {/* Score */}
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <span className="font-jb text-[10px] md:text-xs text-text-tertiary">
+                  score:
+                </span>
+                <span
+                  className={scoreVariants({
+                    severity: getScoreSeverity(score),
+                  })}
+                >
+                  {score.toFixed(1)}
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 md:gap-4">
+              {/* Rank */}
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <span className="font-jb text-xs md:text-[13px] text-text-tertiary">
+                  #
+                </span>
+                <span className="font-jb text-xs md:text-[13px] font-bold text-accent-amber">
+                  {rank}
+                </span>
+              </div>
+
+              {/* Score */}
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <span className="font-jb text-[10px] md:text-xs text-text-tertiary">
+                  score:
+                </span>
+                <span
+                  className={scoreVariants({
+                    severity: getScoreSeverity(score),
+                  })}
+                >
+                  {score.toFixed(1)}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Right: Language + Lines */}
-          <div className="flex items-center gap-3">
-            <span className="font-jb text-xs text-text-secondary">
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="font-jb text-[10px] md:text-xs text-text-secondary">
               {language}
             </span>
-            <span className="font-jb text-xs text-text-tertiary">
+            <span className="font-jb text-[10px] md:text-xs text-text-tertiary">
               {lines} lines
             </span>
           </div>
@@ -116,16 +158,16 @@ export const LeaderboardEntry = React.forwardRef<
 
         {/* Code Block */}
         <div
-          className="h-30 w-full overflow-auto"
+          className="h-24 md:h-30 w-full overflow-auto"
           style={{ background: "var(--color-input)" }}
         >
-          <div className="grid min-h-full" style={{ gridTemplateColumns: "40px 1fr" }}>
+          <div className="grid min-h-full leaderboard-code-grid">
             {/* Line Numbers */}
-            <div className="flex flex-col items-end border-r border-border-primary bg-bg-surface py-3.5 pr-2.5">
+            <div className="flex flex-col items-end border-r border-border-primary bg-bg-surface py-2.5 md:py-3.5 pr-1.5 md:pr-2.5">
               {Array.from({ length: actualLineCount }, (_, i) => (
                 <span
                   key={i}
-                  className="font-jb text-xs leading-5 text-text-tertiary"
+                  className="font-jb text-[10px] md:text-xs leading-5 text-text-tertiary"
                 >
                   {i + 1}
                 </span>
@@ -136,11 +178,11 @@ export const LeaderboardEntry = React.forwardRef<
             <div className="min-w-0">
               {highlightedHtml ? (
                 <div
-                  className="code-highlighted code-highlighted-leaderboard"
+                  className="code-highlighted code-highlighted-leaderboard py-2.5 md:py-3.5 px-3 md:px-4"
                   dangerouslySetInnerHTML={{ __html: highlightedHtml }}
                 />
               ) : (
-                <pre className="py-3.5 px-4 font-jb text-xs leading-5 text-text-primary whitespace-pre">
+                <pre className="py-2.5 md:py-3.5 px-3 md:px-4 font-jb text-[10px] md:text-xs leading-5 text-text-primary whitespace-pre">
                   <code>{code}</code>
                 </pre>
               )}

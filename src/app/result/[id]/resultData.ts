@@ -18,7 +18,7 @@ export function getRoastCanonicalPath(id: string) {
 }
 
 export function getRoastOgImagePath(id: string) {
-  return `/result/${id}/opengraph-image`;
+  return `/result/${id}/share`;
 }
 
 export function formatVerdictLabel(verdict: string) {

@@ -105,18 +105,18 @@ export function HomeInteractive({
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full max-w-240">
+    <div className="flex flex-col items-center gap-6 md:gap-8 w-full max-w-240">
       {/* Title */}
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex items-center gap-3">
-          <span className="text-accent-green font-jb text-4xl font-bold">
+      <div className="flex flex-col items-center gap-2 md:gap-3 text-center px-4 md:px-0">
+        <div className="flex items-center md:gap-3">
+          <span className="text-accent-green font-jb text-2xl md:text-4xl font-bold">
             $
           </span>
-          <h1 className="text-text-primary font-jb text-4xl font-bold">
+          <h1 className="text-text-primary font-jb text-2xl md:text-4xl font-bold">
             <Balancer>paste your code. get roasted.</Balancer>
           </h1>
         </div>
-        <p className="text-text-secondary font-ibm text-sm">
+        <p className="text-text-secondary font-ibm text-xs md:text-sm">
           <Balancer>
             {
               "// drop your code below and we'll rate it — brutally honest or full roast mode"
@@ -136,10 +136,10 @@ export function HomeInteractive({
       />
 
       {/* Actions Bar */}
-      <div className="w-full max-w-195">
-        <div className="flex items-center justify-between gap-4">
+      <div className="w-full max-w-195 px-4 md:px-0">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-4">
           {/* Left: Roast Toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <ToggleRoot>
               <ToggleSwitch
                 checked={roastMode}
@@ -154,7 +154,7 @@ export function HomeInteractive({
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4">
             <span
               className={[
                 "font-jb text-xs",
@@ -169,7 +169,7 @@ export function HomeInteractive({
               variant="default"
               disabled={isSubmitDisabled}
               className={[
-                "font-jb text-[13px] font-medium px-6 py-2.5 rounded-none",
+                "font-jb text-[13px] font-medium px-4 md:px-6 py-2.5 rounded-none whitespace-nowrap",
                 isSubmitDisabled
                   ? "bg-border-primary text-text-tertiary cursor-not-allowed"
                   : "cursor-pointer bg-accent-green text-[#0a0a0a] hover:bg-accent-green/90",
@@ -195,7 +195,7 @@ export function HomeInteractive({
         </div>
 
         {isOverLimit && (
-          <p className="mt-2 text-right font-ibm text-xs text-accent-red">
+          <p className="mt-2 text-right font-ibm text-xs text-accent-red px-4 md:px-0">
             {`// limit exceeded: remove ${overLimitCount} characters to continue`}
           </p>
         )}
@@ -203,7 +203,7 @@ export function HomeInteractive({
         {errorMessage && (
           <p
             className={[
-              "mt-2 text-right font-ibm text-xs",
+              "mt-2 text-right font-ibm text-xs px-4 md:px-0",
               isNavigating ? "text-accent-green" : "text-accent-red",
             ].join(" ")}
           >
@@ -216,13 +216,13 @@ export function HomeInteractive({
       {children}
 
       {/* Spacer */}
-      <div className="h-24" />
+      <div className="h-16 md:h-24" />
 
       {/* Leaderboard Preview */}
       {leaderboardSlot}
 
       {/* Bottom Spacer */}
-      <div className="h-20" />
+      <div className="h-12 md:h-20" />
     </div>
   );
 }

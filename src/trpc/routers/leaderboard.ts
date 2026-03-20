@@ -5,6 +5,7 @@ import { isDatabaseConnectionError } from "@/lib/serverErrors";
 import { createTRPCRouter, publicProcedure } from "@/trpc/init";
 
 const leaderboardPreviewEntrySchema = z.object({
+  roastId: z.string().uuid(),
   rank: z.number().int().positive(),
   score: z.number().min(0).max(10),
   code: z.string(),
@@ -24,6 +25,7 @@ const fallbackLeaderboardPreview = {
 // ─── List (full leaderboard, up to 20 entries) ───────────────────────────────
 
 const leaderboardListEntrySchema = z.object({
+  roastId: z.string().uuid(),
   rank: z.number().int().positive(),
   score: z.number().min(0).max(10),
   code: z.string(),
@@ -54,6 +56,7 @@ export const leaderboardRouter = createTRPCRouter({
 
       const rows = await ctx.db
         .select({
+          roastId: roasts.id,
           score: sql<number>`(${roasts.score})::float`,
           code: submissions.code,
           language: submissions.language,
@@ -66,6 +69,7 @@ export const leaderboardRouter = createTRPCRouter({
       return {
         totalRoasts: countResult?.totalRoasts ?? 0,
         entries: rows.map((row, index) => ({
+          roastId: row.roastId,
           rank: index + 1,
           score: Number(row.score.toFixed(1)),
           code: row.code,
@@ -95,6 +99,7 @@ export const leaderboardRouter = createTRPCRouter({
 
       const rows = await ctx.db
         .select({
+          roastId: roasts.id,
           score: sql<number>`(${roasts.score})::float`,
           code: submissions.code,
           language: submissions.language,
@@ -109,6 +114,7 @@ export const leaderboardRouter = createTRPCRouter({
         totalRoasts: stats?.totalRoasts ?? 0,
         avgScore: Number((stats?.avgScore ?? 0).toFixed(1)),
         entries: rows.map((row, index) => ({
+          roastId: row.roastId,
           rank: index + 1,
           score: Number(row.score.toFixed(1)),
           code: row.code,

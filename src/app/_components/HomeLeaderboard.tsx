@@ -29,7 +29,7 @@ const getLeaderboardPreview = unstable_cache(
     const caller = await getTRPCCaller();
     return caller.leaderboard.preview();
   },
-  ["leaderboard-preview"],
+  ["leaderboard-preview-v2"],
   { revalidate: 3600, tags: ["leaderboard"] },
 );
 
@@ -83,38 +83,68 @@ export async function HomeLeaderboard() {
         </LeaderboardTableHead>
 
         {entriesWithHighlight.length > 0 ? (
-          entriesWithHighlight.map((entry) => (
-            <LeaderboardTableRow key={entry.rank}>
-              <LeaderboardTableCell className="w-10 text-text-tertiary">
-                {entry.rank}
-              </LeaderboardTableCell>
-              <LeaderboardTableCell className="w-15">
-                <LeaderboardScore value={entry.score} />
-              </LeaderboardTableCell>
-              <LeaderboardTableCell className="flex-1 min-w-0">
-                {entry.highlightedHtml ? (
-                  <div
-                    className="code-highlighted code-highlighted-compact font-jb text-xs"
-                    dangerouslySetInnerHTML={{ __html: entry.highlightedHtml }}
-                  />
-                ) : (
-                  <div className="flex flex-col gap-0.5">
-                    {entry.snippet.split("\n").map((line, i) => (
-                      <code
-                        key={i}
-                        className="font-jb text-xs text-text-primary"
-                      >
-                        {line}
-                      </code>
-                    ))}
-                  </div>
-                )}
-              </LeaderboardTableCell>
-              <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
-                {entry.language}
-              </LeaderboardTableCell>
-            </LeaderboardTableRow>
-          ))
+          entriesWithHighlight.map((entry) => {
+            const resultHref = entry.roastId
+              ? `/result/${entry.roastId}`
+              : null;
+
+            return (
+              <LeaderboardTableRow
+                key={entry.roastId ?? `${entry.rank}-${entry.language}`}
+              >
+                <LeaderboardTableCell className="w-10 text-text-tertiary">
+                  {resultHref ? (
+                    <Link
+                      href={resultHref}
+                      aria-label={`Open roast #${entry.rank} with score ${entry.score.toFixed(1)}`}
+                      className="inline-flex cursor-pointer transition-colors hover:text-text-primary"
+                    >
+                      {entry.rank}
+                    </Link>
+                  ) : (
+                    <span>{entry.rank}</span>
+                  )}
+                </LeaderboardTableCell>
+                <LeaderboardTableCell className="w-15">
+                  {resultHref ? (
+                    <Link
+                      href={resultHref}
+                      aria-label={`Open roast #${entry.rank} with score ${entry.score.toFixed(1)}`}
+                      className="inline-flex cursor-pointer"
+                    >
+                      <LeaderboardScore value={entry.score} />
+                    </Link>
+                  ) : (
+                    <LeaderboardScore value={entry.score} />
+                  )}
+                </LeaderboardTableCell>
+                <LeaderboardTableCell className="flex-1 min-w-0">
+                  {entry.highlightedHtml ? (
+                    <div
+                      className="code-highlighted code-highlighted-compact font-jb text-xs"
+                      dangerouslySetInnerHTML={{
+                        __html: entry.highlightedHtml,
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col gap-0.5">
+                      {entry.snippet.split("\n").map((line, i) => (
+                        <code
+                          key={i}
+                          className="font-jb text-xs text-text-primary whitespace-pre"
+                        >
+                          {line}
+                        </code>
+                      ))}
+                    </div>
+                  )}
+                </LeaderboardTableCell>
+                <LeaderboardTableCell className="w-25 text-text-tertiary text-right">
+                  {entry.language}
+                </LeaderboardTableCell>
+              </LeaderboardTableRow>
+            );
+          })
         ) : (
           <LeaderboardTableRow>
             <LeaderboardTableCell className="flex-1 text-text-tertiary py-8 text-center">

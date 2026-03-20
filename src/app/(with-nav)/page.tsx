@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">
-      <div className="flex-1 flex flex-col items-center pt-20 px-10">
+      <div className="flex-1 flex flex-col items-center pt-20 px-4 md:px-10">
         <HomeInteractive
           leaderboardSlot={
             <Suspense fallback={<HomeLeaderboardSkeleton />}>
