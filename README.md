@@ -75,3 +75,66 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `npm run db:push` — sync Drizzle schema to database
 - `npm run db:studio` — open Drizzle Studio
 - `npm run db:seed` — seed sample data
+
+## Deploy on Vercel
+
+### 1) Push your repository
+
+Push this project to GitHub, GitLab, or Bitbucket.
+
+### 2) Provision a production PostgreSQL database
+
+Use a managed Postgres provider (for example: Vercel Postgres, Neon, Supabase, Railway, Render).
+
+Copy the full connection string and keep it ready as `DATABASE_URL`.
+
+### 3) Import the project into Vercel
+
+1. Open Vercel dashboard
+2. Click **Add New... > Project**
+3. Import your repository
+4. Keep framework preset as **Next.js**
+5. Build command: `npm run build`
+6. Install command: `npm install`
+
+### 4) Configure environment variables in Vercel
+
+Set these variables for **Production** (and optionally **Preview**):
+
+- `DATABASE_URL` = your managed Postgres URL
+- `OPENAI_API_KEY` = your API key used by `src/lib/ai.ts`
+- `NEXT_PUBLIC_APP_URL` = your public app URL (example: `https://your-app.vercel.app`)
+
+Notes:
+
+- Do not use local Docker database settings in production.
+- `NEXT_PUBLIC_APP_URL` is used to build absolute URLs for sharing and metadata.
+
+### 5) Apply database schema to production
+
+After setting production `DATABASE_URL`, apply schema:
+
+```bash
+npm run db:push
+```
+
+Run this command from your machine (or CI) with environment variables pointing to production.
+
+### 6) Deploy
+
+Trigger your first deployment in Vercel. After deploy succeeds, validate:
+
+1. Home page loads
+2. New roast submission works
+3. Result page opens
+4. Share page and Open Graph image render correctly
+
+### 7) Ongoing updates
+
+For schema changes in future releases:
+
+1. Update schema in code
+2. Deploy app changes
+3. Run `npm run db:push` against production database
+
+If you prefer stricter migration history, switch from `db:push` to generated SQL migrations before larger production releases.
