@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { Balancer } from "react-wrap-balancer";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/Button";
 import { CodeEditor } from "@/components/ui/CodeEditor";
 import { ToggleLabel, ToggleRoot, ToggleSwitch } from "@/components/ui/Toggle";
 import type { Language } from "@/db/schema";

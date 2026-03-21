@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/Button";
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
 import {
   LeaderboardRoot,

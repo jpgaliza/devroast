@@ -1,4 +1,5 @@
-export * from "./Button";
+export { Button, buttonVariants } from "./Button";
+export type { ButtonProps } from "./Button";
 export * from "./Toggle";
 export * from "./Badge";
 export * from "./Input";
