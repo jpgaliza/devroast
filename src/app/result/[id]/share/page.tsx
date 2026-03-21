@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getAbsoluteUrl } from "@/lib/siteUrl";
 import {
   getRoastCanonicalPath,
   getRoastResultById,
@@ -21,7 +20,6 @@ export default async function SharePage({ params }: SharePageProps) {
   }
 
   const imagePath = `/result/${id}/opengraph-image`;
-  const imageUrl = getAbsoluteUrl(imagePath);
   const resultPath = getRoastCanonicalPath(id);
 
   return (
@@ -56,7 +54,7 @@ export default async function SharePage({ params }: SharePageProps) {
         <div className="w-full max-w-7xl">
           <div className="relative w-full aspect-1200/630 border border-border-primary">
             <Image
-              src={imageUrl}
+              src={imagePath}
               alt={`devroast score ${roast.score.toFixed(1)} out of 10`}
               fill
               className="object-contain"

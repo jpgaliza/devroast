@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { getHighlightedCodeHtml } from "@/components/ui/CodeBlock.server";
@@ -24,17 +23,9 @@ function getPreviewSnippet(code: string, maxLines = 3): string {
   return code.split("\n").slice(0, maxLines).join("\n");
 }
 
-const getLeaderboardPreview = unstable_cache(
-  async () => {
-    const caller = await getTRPCCaller();
-    return caller.leaderboard.preview();
-  },
-  ["leaderboard-preview-v2"],
-  { revalidate: 3600, tags: ["leaderboard"] },
-);
-
 export async function HomeLeaderboard() {
-  const { entries, totalRoasts } = await getLeaderboardPreview();
+  const caller = await getTRPCCaller();
+  const { entries, totalRoasts } = await caller.leaderboard.preview();
 
   const entriesWithHighlight = await Promise.all(
     entries.map(async (entry) => {
