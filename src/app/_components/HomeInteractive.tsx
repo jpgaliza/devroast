@@ -180,12 +180,16 @@ export function HomeInteractive({
               {isNavigating ? (
                 <>
                   $ opening_result
-                  <span className="inline-block w-4 text-left">{analyzingDots}</span>
+                  <span className="inline-block w-4 text-left">
+                    {analyzingDots}
+                  </span>
                 </>
               ) : submitMutation.isPending ? (
                 <>
                   $ analyzing
-                  <span className="inline-block w-4 text-left">{analyzingDots}</span>
+                  <span className="inline-block w-4 text-left">
+                    {analyzingDots}
+                  </span>
                 </>
               ) : (
                 "$ roast_my_code"

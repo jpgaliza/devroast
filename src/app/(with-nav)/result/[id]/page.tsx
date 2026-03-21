@@ -17,6 +17,7 @@ import {
   formatVerdictLabel,
   getRoastCanonicalPath,
   getRoastOgImagePath,
+  getRoastSharePath,
   getRoastResultById,
 } from "./resultData";
 import { ResponsiveDiff } from "./_components/ResponsiveDiff";
@@ -94,7 +95,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
     notFound();
   }
 
-  const sharePath = getRoastOgImagePath(id);
+  const sharePath = getRoastSharePath(id);
 
   const [highlightedCode, improvementPlan] = await Promise.all([
     getHighlightedCodeHtml(roast.code, roast.language),

@@ -1,9 +1,18 @@
+import { unstable_cache } from "next/cache";
 import { HomeMetricsNumbers } from "@/app/_components/HomeMetricsNumbers";
 import { getTRPCCaller } from "@/trpc/server";
 
+const getMetricsOverview = unstable_cache(
+  async () => {
+    const caller = await getTRPCCaller();
+    return caller.metrics.overview();
+  },
+  ["home-metrics-overview-v1"],
+  { revalidate: 3600, tags: ["metrics"] },
+);
+
 export async function HomeMetrics() {
-  const caller = await getTRPCCaller();
-  const metrics = await caller.metrics.overview();
+  const metrics = await getMetricsOverview();
 
   return (
     <HomeMetricsNumbers

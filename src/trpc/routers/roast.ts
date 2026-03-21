@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import {
 	languageEnum,
@@ -112,6 +113,9 @@ export const roastRouter = createTRPCRouter({
 				if (!roast?.id) {
 					throw new Error("Could not persist roast");
 				}
+
+				revalidateTag("leaderboard", "max");
+				revalidateTag("metrics", "max");
 
 				return { roastId: roast.id };
 			} catch (error) {

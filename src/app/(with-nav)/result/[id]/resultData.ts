@@ -22,7 +22,7 @@ export function getRoastSharePath(id: string) {
 }
 
 export function getRoastOgImagePath(id: string) {
-  return getRoastSharePath(id);
+  return `/result/${id}/opengraph-image`;
 }
 
 export function formatVerdictLabel(verdict: string) {
