@@ -10,7 +10,7 @@ import {
 	type Verdict,
 	verdictEnum,
 } from "@/db/schema";
-import { AI_MODEL, generateRoast } from "@/lib/ai";
+import { getActiveModel, generateRoast } from "@/lib/ai";
 import {
 	isDatabaseConnectionError,
 	isRateLimitError,
@@ -106,7 +106,7 @@ export const roastRouter = createTRPCRouter({
 						verdict,
 						headline: generated.headline,
 						feedback: generated.feedback,
-						aiModel: AI_MODEL,
+						aiModel: getActiveModel(),
 					})
 					.returning({ id: roasts.id });
 

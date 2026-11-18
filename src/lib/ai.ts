@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import { z } from "zod";
 import type { FeedbackItem, RoastMode } from "@/db/schema";
 
-const AI_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 const roastSystemPrompt =
 	"You are a ruthless senior engineer doing a brutal code review. Be sarcastic, sharp, and technically precise. Your job is to tear apart this code with maximum sarcasm while still being technically accurate. Never be cruel for no reason - every joke must have technical substance.";
@@ -30,23 +31,53 @@ const aiImprovementSchema = z.object({
 	improvedCode: z.string().min(1),
 });
 
-let openaiClient: OpenAI | null = null;
+type AIClientConfig = {
+	client: OpenAI;
+	model: string;
+};
 
-function getOpenAIClient() {
-	if (openaiClient) {
-		return openaiClient;
+let cachedConfig: AIClientConfig | null = null;
+
+function getAIClientConfig(): AIClientConfig {
+	if (cachedConfig) {
+		return cachedConfig;
+	}
+
+	const googleApiKey =
+		process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+	if (googleApiKey) {
+		cachedConfig = {
+			client: new OpenAI({
+				apiKey: googleApiKey,
+				baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+			}),
+			model: GEMINI_MODEL,
+		};
+		return cachedConfig;
 	}
 
 	const apiKey = process.env.OPENAI_API_KEY;
 	if (!apiKey) {
-		throw new Error("OPENAI_API_KEY is not configured");
+		throw new Error(
+			"GEMINI_API_KEY (or OPENAI_API_KEY) is not configured",
+		);
 	}
 
-	openaiClient = new OpenAI({
-		apiKey,
-		baseURL: "https://api.groq.com/openai/v1",
-	});
-	return openaiClient;
+	cachedConfig = {
+		client: new OpenAI({
+			apiKey,
+			baseURL: "https://api.groq.com/openai/v1",
+		}),
+		model: GROQ_MODEL,
+	};
+	return cachedConfig;
+}
+
+function getActiveModel() {
+	return process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
+		? GEMINI_MODEL
+		: GROQ_MODEL;
 }
 
 function getSystemPrompt(mode: RoastMode) {
@@ -111,10 +142,10 @@ export async function generateRoast(
 	headline: string;
 	feedback: FeedbackItem[];
 }> {
-	const client = getOpenAIClient();
+	const { client, model } = getAIClientConfig();
 
 	const completion = await client.chat.completions.create({
-		model: AI_MODEL,
+		model,
 		response_format: { type: "json_object" },
 		temperature: mode === "roast" ? 0.8 : 0.5,
 		messages: [
@@ -153,10 +184,10 @@ export async function generateImprovedCode(
 	suggestions: string[];
 	improvedCode: string;
 }> {
-	const client = getOpenAIClient();
+	const { client, model } = getAIClientConfig();
 
 	const completion = await client.chat.completions.create({
-		model: AI_MODEL,
+		model,
 		response_format: { type: "json_object" },
 		temperature: 0.3,
 		messages: [
@@ -187,4 +218,4 @@ export async function generateImprovedCode(
 	};
 }
 
-export { AI_MODEL };
+export { getActiveModel };
