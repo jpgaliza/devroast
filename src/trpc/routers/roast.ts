@@ -134,7 +134,9 @@ export const roastRouter = createTRPCRouter({
 						: "INTERNAL_SERVER_ERROR",
 					message: isRateLimitError(error)
 						? "AI service quota exceeded"
-						: "Failed to generate roast",
+						: error instanceof Error
+							? error.message
+							: "Failed to generate roast",
 				});
 			}
 		}),
