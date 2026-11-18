@@ -109,7 +109,7 @@ async function callGeminiNative(
 			response = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				signal: AbortSignal.timeout(12000),
+				signal: AbortSignal.timeout(20000),
 				body: JSON.stringify({
 					systemInstruction: {
 						parts: [{ text: systemPrompt }],
@@ -123,6 +123,9 @@ async function callGeminiNative(
 					generationConfig: {
 						temperature,
 						responseMimeType: "application/json",
+						thinkingConfig: {
+							thinkingBudget: 0,
+						},
 					},
 				}),
 			});
