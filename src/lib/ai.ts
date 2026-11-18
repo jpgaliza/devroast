@@ -80,6 +80,96 @@ function getActiveModel() {
 		: GROQ_MODEL;
 }
 
+function stripJsonFences(raw: string): string {
+	return raw
+		.trim()
+		.replace(/^```(?:json)?\s*/i, "")
+		.replace(/\s*```$/, "")
+		.trim();
+}
+
+async function callGeminiNative(
+	apiKey: string,
+	systemPrompt: string,
+	userPrompt: string,
+	temperature: number,
+): Promise<string> {
+	const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			systemInstruction: {
+				parts: [{ text: systemPrompt }],
+			},
+			contents: [
+				{
+					role: "user",
+					parts: [{ text: userPrompt }],
+				},
+			],
+			generationConfig: {
+				temperature,
+				responseMimeType: "application/json",
+			},
+		}),
+	});
+
+	if (!response.ok) {
+		const errText = await response.text();
+		throw new Error(`Gemini API error (${response.status}): ${errText}`);
+	}
+
+	const data = (await response.json()) as {
+		candidates?: Array<{
+			content?: { parts?: Array<{ text?: string }> };
+		}>;
+	};
+
+	const text = data.candidates?.[0]?.content?.parts
+		?.map((p) => p.text ?? "")
+		.join("")
+		.trim();
+
+	if (!text) {
+		throw new Error("Gemini returned an empty response");
+	}
+
+	return stripJsonFences(text);
+}
+
+async function generateJsonCompletion(
+	systemPrompt: string,
+	userPrompt: string,
+	temperature: number,
+): Promise<string> {
+	const googleApiKey =
+		process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+	if (googleApiKey) {
+		return callGeminiNative(googleApiKey, systemPrompt, userPrompt, temperature);
+	}
+
+	const { client, model } = getAIClientConfig();
+	const completion = await client.chat.completions.create({
+		model,
+		response_format: { type: "json_object" },
+		temperature,
+		messages: [
+			{ role: "system", content: systemPrompt },
+			{ role: "user", content: userPrompt },
+		],
+	});
+
+	const content = completion.choices[0]?.message?.content;
+	if (!content) {
+		throw new Error("AI returned an empty response");
+	}
+
+	return stripJsonFences(content);
+}
+
 function getSystemPrompt(mode: RoastMode) {
 	return mode === "roast" ? roastSystemPrompt : honestSystemPrompt;
 }
@@ -142,28 +232,11 @@ export async function generateRoast(
 	headline: string;
 	feedback: FeedbackItem[];
 }> {
-	const { client, model } = getAIClientConfig();
-
-	const completion = await client.chat.completions.create({
-		model,
-		response_format: { type: "json_object" },
-		temperature: mode === "roast" ? 0.8 : 0.5,
-		messages: [
-			{
-				role: "system",
-				content: getSystemPrompt(mode),
-			},
-			{
-				role: "user",
-				content: getUserPrompt(code, language),
-			},
-		],
-	});
-
-	const content = completion.choices[0]?.message?.content;
-	if (!content) {
-		throw new Error("OpenAI returned an empty response");
-	}
+	const content = await generateJsonCompletion(
+		getSystemPrompt(mode),
+		getUserPrompt(code, language),
+		mode === "roast" ? 0.8 : 0.5,
+	);
 
 	const parsedJson = JSON.parse(content) as unknown;
 	const parsed = aiRoastSchema.parse(parsedJson);
@@ -184,29 +257,11 @@ export async function generateImprovedCode(
 	suggestions: string[];
 	improvedCode: string;
 }> {
-	const { client, model } = getAIClientConfig();
-
-	const completion = await client.chat.completions.create({
-		model,
-		response_format: { type: "json_object" },
-		temperature: 0.3,
-		messages: [
-			{
-				role: "system",
-				content:
-					"You are a senior software engineer that writes practical and safe refactors.",
-			},
-			{
-				role: "user",
-				content: getImprovementPrompt(code, language, feedback),
-			},
-		],
-	});
-
-	const content = completion.choices[0]?.message?.content;
-	if (!content) {
-		throw new Error("OpenAI returned an empty improvement response");
-	}
+	const content = await generateJsonCompletion(
+		"You are a senior software engineer that writes practical and safe refactors.",
+		getImprovementPrompt(code, language, feedback),
+		0.3,
+	);
 
 	const parsedJson = JSON.parse(content) as unknown;
 	const parsed = aiImprovementSchema.parse(parsedJson);
