@@ -4,6 +4,11 @@ import type { FeedbackItem, RoastMode } from "@/db/schema";
 
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const GEMINI_MODEL = "gemini-3.8-flash";
+const GEMINI_FALLBACK_MODELS = [
+	"gemini-3.8-flash",
+	"gemini-3.8-flash-lite",
+	"gemini-2.5-flash-lite",
+];
 
 const roastSystemPrompt =
 	"You are a ruthless senior engineer doing a brutal code review. Be sarcastic, sharp, and technically precise. Your job is to tear apart this code with maximum sarcasm while still being technically accurate. Never be cruel for no reason - every joke must have technical substance.";
@@ -94,49 +99,66 @@ async function callGeminiNative(
 	userPrompt: string,
 	temperature: number,
 ): Promise<string> {
-	const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+	let lastError: Error | null = null;
 
-	const response = await fetch(url, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			systemInstruction: {
-				parts: [{ text: systemPrompt }],
-			},
-			contents: [
-				{
-					role: "user",
-					parts: [{ text: userPrompt }],
+	for (const modelName of GEMINI_FALLBACK_MODELS) {
+		const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+		const response = await fetch(url, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				systemInstruction: {
+					parts: [{ text: systemPrompt }],
 				},
-			],
-			generationConfig: {
-				temperature,
-				responseMimeType: "application/json",
-			},
-		}),
-	});
+				contents: [
+					{
+						role: "user",
+						parts: [{ text: userPrompt }],
+					},
+				],
+				generationConfig: {
+					temperature,
+					responseMimeType: "application/json",
+				},
+			}),
+		});
 
-	if (!response.ok) {
-		const errText = await response.text();
-		throw new Error(`Gemini API error (${response.status}): ${errText}`);
+		if (!response.ok) {
+			const errText = await response.text();
+			lastError = new Error(
+				`Gemini API error (${response.status} on ${modelName}): ${errText}`,
+			);
+			if (
+				response.status === 404 ||
+				response.status === 429 ||
+				response.status === 503
+			) {
+				continue;
+			}
+			throw lastError;
+		}
+
+		const data = (await response.json()) as {
+			candidates?: Array<{
+				content?: { parts?: Array<{ text?: string }> };
+			}>;
+		};
+
+		const text = data.candidates?.[0]?.content?.parts
+			?.map((p) => p.text ?? "")
+			.join("")
+			.trim();
+
+		if (!text) {
+			lastError = new Error(`Gemini (${modelName}) returned an empty response`);
+			continue;
+		}
+
+		return stripJsonFences(text);
 	}
 
-	const data = (await response.json()) as {
-		candidates?: Array<{
-			content?: { parts?: Array<{ text?: string }> };
-		}>;
-	};
-
-	const text = data.candidates?.[0]?.content?.parts
-		?.map((p) => p.text ?? "")
-		.join("")
-		.trim();
-
-	if (!text) {
-		throw new Error("Gemini returned an empty response");
-	}
-
-	return stripJsonFences(text);
+	throw lastError ?? new Error("All Gemini models failed");
 }
 
 async function generateJsonCompletion(
