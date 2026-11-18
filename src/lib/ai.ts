@@ -104,26 +104,32 @@ async function callGeminiNative(
 	for (const modelName of GEMINI_FALLBACK_MODELS) {
 		const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-		const response = await fetch(url, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			signal: AbortSignal.timeout(9000),
-			body: JSON.stringify({
-				systemInstruction: {
-					parts: [{ text: systemPrompt }],
-				},
-				contents: [
-					{
-						role: "user",
-						parts: [{ text: userPrompt }],
+		let response: Response;
+		try {
+			response = await fetch(url, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				signal: AbortSignal.timeout(12000),
+				body: JSON.stringify({
+					systemInstruction: {
+						parts: [{ text: systemPrompt }],
 					},
-				],
-				generationConfig: {
-					temperature,
-					responseMimeType: "application/json",
-				},
-			}),
-		});
+					contents: [
+						{
+							role: "user",
+							parts: [{ text: userPrompt }],
+						},
+					],
+					generationConfig: {
+						temperature,
+						responseMimeType: "application/json",
+					},
+				}),
+			});
+		} catch (err) {
+			lastError = err instanceof Error ? err : new Error(String(err));
+			continue;
+		}
 
 		if (!response.ok) {
 			const errText = await response.text();
