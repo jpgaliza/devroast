@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { FeedbackItem, RoastMode } from "@/db/schema";
 
 const GROQ_MODEL = "llama-3.3-70b-versatile";
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.8-flash";
 
 const roastSystemPrompt =
 	"You are a ruthless senior engineer doing a brutal code review. Be sarcastic, sharp, and technically precise. Your job is to tear apart this code with maximum sarcasm while still being technically accurate. Never be cruel for no reason - every joke must have technical substance.";
