@@ -4,11 +4,7 @@ import type { FeedbackItem, RoastMode } from "@/db/schema";
 
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const GEMINI_MODEL = "gemini-3.8-flash";
-const GEMINI_FALLBACK_MODELS = [
-	"gemini-3.8-flash",
-	"gemini-3.8-flash-lite",
-	"gemini-2.5-flash",
-];
+const GEMINI_FALLBACK_MODELS = ["gemini-3.8-flash"];
 
 const roastSystemPrompt =
 	"You are a ruthless senior engineer doing a brutal code review. Be sarcastic, sharp, and technically precise. Your job is to tear apart this code with maximum sarcasm while still being technically accurate. Never be cruel for no reason - every joke must have technical substance.";
@@ -109,7 +105,7 @@ async function callGeminiNative(
 			response = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				signal: AbortSignal.timeout(8000),
+				signal: AbortSignal.timeout(22000),
 				body: JSON.stringify({
 					systemInstruction: {
 						parts: [{ text: systemPrompt }],
@@ -123,9 +119,6 @@ async function callGeminiNative(
 					generationConfig: {
 						temperature,
 						responseMimeType: "application/json",
-						thinkingConfig: {
-							thinkingBudget: 0,
-						},
 					},
 				}),
 			});
