@@ -105,7 +105,7 @@ async function callGeminiNative(
 			response = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				signal: AbortSignal.timeout(22000),
+				signal: AbortSignal.timeout(45000),
 				body: JSON.stringify({
 					systemInstruction: {
 						parts: [{ text: systemPrompt }],
@@ -176,7 +176,18 @@ async function generateJsonCompletion(
 		process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 	if (googleApiKey) {
-		return callGeminiNative(googleApiKey, systemPrompt, userPrompt, temperature);
+		try {
+			return await callGeminiNative(
+				googleApiKey,
+				systemPrompt,
+				userPrompt,
+				temperature,
+			);
+		} catch (geminiError) {
+			if (!process.env.OPENAI_API_KEY) {
+				throw geminiError;
+			}
+		}
 	}
 
 	const { client, model } = getAIClientConfig();
