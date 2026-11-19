@@ -3,11 +3,11 @@ import { z } from "zod";
 import type { FeedbackItem, RoastMode } from "@/db/schema";
 
 const GROQ_MODEL = "llama-3.3-70b-versatile";
-const GEMINI_MODEL = "gemini-3.8-flash-lite";
+const GEMINI_MODEL = "gemini-3.8-flash";
 const GEMINI_FALLBACK_MODELS = [
-	"gemini-3.8-flash-lite",
-	"gemini-2.5-flash-lite",
 	"gemini-3.8-flash",
+	"gemini-3.8-flash-lite",
+	"gemini-2.5-flash",
 ];
 
 const roastSystemPrompt =
@@ -109,7 +109,7 @@ async function callGeminiNative(
 			response = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				signal: AbortSignal.timeout(20000),
+				signal: AbortSignal.timeout(8000),
 				body: JSON.stringify({
 					systemInstruction: {
 						parts: [{ text: systemPrompt }],
