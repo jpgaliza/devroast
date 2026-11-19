@@ -119,6 +119,9 @@ async function callGeminiNative(
 					generationConfig: {
 						temperature,
 						responseMimeType: "application/json",
+						thinkingConfig: {
+							thinkingLevel: "LOW",
+						},
 					},
 				}),
 			});
